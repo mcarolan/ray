@@ -3,7 +3,7 @@ where
 
   import           Test.Hspec
   import           Control.Monad (unless)
-  import           Quad
+  import           ApproxEqual
 
   shouldApproxBe :: (Show a, ApproxEqual a) => a -> a -> Expectation
   shouldApproxBe a b =

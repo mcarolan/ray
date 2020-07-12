@@ -4,8 +4,8 @@ import Quad
 import Data.Functor
 import Control.Monad.Loops
 
-data Projectile = Projectile { position :: Quad Double, velocity :: Quad Double } deriving (Show)
-data Environment = Environment { gravity :: Quad Double, wind :: Quad Double }
+data Projectile = Projectile { position :: Quad, velocity :: Quad } deriving (Show)
+data Environment = Environment { gravity :: Quad, wind :: Quad }
 
 tick :: Environment -> Projectile -> Projectile
 tick e p =
