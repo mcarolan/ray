@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a8a6937d2cb8a8c06d0a804f0c40df72508ca53d769c689703ae7f9f79193b49
+-- hash: 0e9686d5edce1ea67bbab0d205ae335329c7a44eaf4e7ef2d9bbb0c3d0277583
 
 name:           ray
 version:        0.1.0.0
@@ -28,7 +28,7 @@ source-repository head
 library
   exposed-modules:
       Lib
-      Tuples
+      Quad
   other-modules:
       Paths_ray
   hs-source-dirs:
@@ -53,8 +53,8 @@ test-suite ray-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      QuadSpec
       TestUtil
-      TuplesSpec
       Paths_ray
   hs-source-dirs:
       test
