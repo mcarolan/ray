@@ -35,6 +35,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - ray
+    - monad-loops
 
 tests:
   ray-test:
