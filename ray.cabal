@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c152528a18b7de0cb32e9136ad5be923da107c45e2dcd9c39f8d3d741cee3a8f
+-- hash: baa5fcca4f6bad09edb87b8a50bd56d322f57e777a3cff51aeb6a9bbff3771da
 
 name:           ray
 version:        0.1.0.0
@@ -36,7 +36,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
   default-language: Haskell2010
 
 executable ray-exe

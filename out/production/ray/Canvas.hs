@@ -1,7 +1,6 @@
 module Canvas
   where
-
-  import Data.Array
+  import Data.Array.IArray
   
   data Colour = Colour { r, g, b :: Double } deriving (Show)
 
@@ -22,24 +21,17 @@ module Canvas
     Colour ((r x) * (r y)) ((g x) * (g y)) ((b x) * (b y))
 
   black = Colour 0 0 0
-  white = Colour 1 1 1
   
-  type Canvas = Array Int (Array Int Colour)
+  type Canvas = IArray (IArray Colour Int) Int
 
   buildCanvas :: Int -> Int -> Canvas
   buildCanvas w h =
-    listArray (0,h-1) (replicate h row)
-    where row = listArray (0,w-1) (replicate w black)
+    replicate h row
+    where row = replicate w black
     
   writePixel :: Canvas -> Int -> Int -> Colour -> Canvas
   writePixel canvas x y colour = 
-    canvas // [(y, newRow)]
-    where
-      row = canvas ! x
-      newRow = row // [(x, colour)]
-      
-  pixelAt :: Canvas -> Int -> Int -> Colour
-  pixelAt canvas x y =
-    row ! x
-    where
-      row = canvas ! y
+    undefined
+    where 
+      row = canvas !! y
+      newRow = (take x row) 

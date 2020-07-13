@@ -22,8 +22,3 @@ module ApproxEqual
       approxEqual (r x) (r y) &&
       approxEqual (g x) (g y) &&
       approxEqual (b x) (b y)
-
-  instance (ApproxEqual a) => ApproxEqual [a] where
-    approxEqual x y =
-      length x == length y &&
-      all (uncurry approxEqual) (zip x y)
