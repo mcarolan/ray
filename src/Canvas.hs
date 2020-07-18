@@ -2,27 +2,8 @@ module Canvas
   where
 
   import Data.Array
-  
-  data Colour = Colour { r, g, b :: Double } deriving (Show)
-
-  add :: Colour -> Colour -> Colour
-  add x y =
-    Colour ((r x) + (r y)) ((g x) + (g y)) ((b x) + (b y))
-
-  minus :: Colour -> Colour -> Colour
-  minus x y =
-    Colour ((r x) - (r y)) ((g x) - (g y)) ((b x) - (b y))
-
-  mulScalar :: Colour -> Double -> Colour
-  mulScalar x n =
-    Colour ((r x) * n) ((g x) * n) ((b x) * n)
-
-  mulColour :: Colour -> Colour -> Colour
-  mulColour x y =
-    Colour ((r x) * (r y)) ((g x) * (g y)) ((b x) * (b y))
-
-  black = Colour 0 0 0
-  white = Colour 1 1 1
+  import Data.List
+  import Colour
   
   type Canvas = Array Int (Array Int Colour)
 
@@ -31,11 +12,11 @@ module Canvas
     listArray (0,h-1) (replicate h row)
     where row = listArray (0,w-1) (replicate w black)
     
-  writePixel :: Canvas -> Int -> Int -> Colour -> Canvas
-  writePixel canvas x y colour = 
+  writePixel :: Int -> Int -> Colour -> Canvas -> Canvas
+  writePixel x y colour canvas =
     canvas // [(y, newRow)]
     where
-      row = canvas ! x
+      row = canvas ! y
       newRow = row // [(x, colour)]
       
   pixelAt :: Canvas -> Int -> Int -> Colour
@@ -43,3 +24,14 @@ module Canvas
     row ! x
     where
       row = canvas ! y
+
+  canvasToList :: Canvas -> [[Colour]]
+  canvasToList canvas =
+    elems (fmap elems canvas)
+    
+  cmap :: (Colour -> Colour) -> Canvas -> Canvas
+  cmap f = fmap (fmap f)
+  
+  height :: Canvas -> Int
+  height = length
+  

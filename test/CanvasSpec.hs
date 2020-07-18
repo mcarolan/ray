@@ -4,6 +4,7 @@ module CanvasSpec
   import Canvas
   import Test.Hspec
   import TestUtil
+  import Colour
 
   spec :: Spec
   spec = do
@@ -16,7 +17,7 @@ module CanvasSpec
       it "identifies the b component" $ do
         b (Colour (-0.5) 0.4 1.7) `shouldApproxBe` 1.7
       it "allows adding" $ do
-        Colour 0.9 0.6 7.5 `add` Colour 0.7 0.1 0.25 `shouldApproxBe` Colour 1.6 0.7 7.75
+        Colour 0.9 0.6 7.5 `addColour` Colour 0.7 0.1 0.25 `shouldApproxBe` Colour 1.6 0.7 7.75
       it "allows subtraction" $ do
         Colour 0.9 0.6 7.5 `minus` Colour 0.7 0.1 0.25 `shouldApproxBe` Colour 0.2 0.5 7.25
       it "allows scalar multiplication" $ do
@@ -30,6 +31,6 @@ module CanvasSpec
         let allPixels = [ pixelAt canvas x y | x <- [0 .. 9], y <- [0 .. 9]]
         allPixels `shouldApproxBe` replicate (10*10) black
       it "allows getting and setting of pixels" $ do
-        let canvas = buildCanvas 10 10
-        let newCanvas = writePixel canvas 5 5 white
-        pixelAt newCanvas 5 5 `shouldApproxBe` white
+        let canvas = buildCanvas 6 4
+        let newCanvas = writePixel 5 3 white canvas
+        pixelAt newCanvas 5 3 `shouldApproxBe` white

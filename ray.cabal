@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: baa5fcca4f6bad09edb87b8a50bd56d322f57e777a3cff51aeb6a9bbff3771da
+-- hash: 16fff07b378711c7842611d4b965975b0bce1c6379bd21906d7acd00cc4e482a
 
 name:           ray
 version:        0.1.0.0
@@ -29,6 +29,8 @@ library
   exposed-modules:
       ApproxEqual
       Canvas
+      CanvasPPM
+      Colour
       Lib
       Quad
   other-modules:
@@ -57,6 +59,7 @@ test-suite ray-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      CanvasPPMSpec
       CanvasSpec
       QuadSpec
       TestUtil

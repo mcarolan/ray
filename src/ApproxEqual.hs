@@ -2,7 +2,7 @@ module ApproxEqual
   where
 
   import Quad
-  import Canvas
+  import Colour
 
   class ApproxEqual a where
     approxEqual :: a -> a -> Bool
