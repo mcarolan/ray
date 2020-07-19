@@ -11,7 +11,7 @@ module Canvas
   buildCanvas w h =
     listArray (0,h-1) (replicate h row)
     where row = listArray (0,w-1) (replicate w black)
-    
+
   writePixel :: Int -> Int -> Colour -> Canvas -> Canvas
   writePixel x y colour canvas =
     canvas // [(y, newRow)]
