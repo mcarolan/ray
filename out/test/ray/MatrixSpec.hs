@@ -13,7 +13,7 @@ module MatrixSpec where
                         5.5   6.5   7.5   8.5
                         9     10    11    12
                         13.5  14.5  15.5  16.5
-
+                        
         rows m `shouldBe` 4
         columns m `shouldBe` 4
 
@@ -28,7 +28,7 @@ module MatrixSpec where
       it "should be able to construct a 2x2 matrix" $ do
         let m = matrix2 (-3) 5
                         1    (-2)
-
+                        
         rows m `shouldBe` 2
         columns m `shouldBe` 2
 
@@ -106,13 +106,3 @@ module MatrixSpec where
         rows m `shouldBe` 4
         columns m `shouldBe` 1
         quadFromMatrix m `shouldApproxBe` q
-        
-      it "should define an identity matrix" $ do
-        let m = matrix4 1   2   3   4
-                        2   4   4   2
-                        8   6   4   1
-                        0   0   0   1
-        let q = Quad 1 2 3 4
-        
-        m `matmul` identity4 `shouldApproxBe` m
-        identity4 `mattupmul` q `shouldApproxBe` q

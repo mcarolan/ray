@@ -1,8 +1,10 @@
+{-# LANGUAGE FlexibleInstances #-}
 module ApproxEqual
   where
 
   import Quad
-  import Canvas
+  import Colour
+  import Data.Array
 
   class ApproxEqual a where
     approxEqual :: a -> a -> Bool
@@ -27,3 +29,9 @@ module ApproxEqual
     approxEqual x y =
       length x == length y &&
       all (uncurry approxEqual) (zip x y)
+
+  instance ApproxEqual (Array (Int, Int) Double) where
+    approxEqual a b =
+      columns a == columns b &&
+      rows a == rows b &&
+      all (uncurry approxEqual) [ (a `at` (i, j), b `at` (i, j)) | i <- [0..rows a - 1], j <- [0..columns a - 1]]

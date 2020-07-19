@@ -30,7 +30,7 @@ module ApproxEqual
       length x == length y &&
       all (uncurry approxEqual) (zip x y)
 
-  instance ApproxEqual (Array (Int, Int) Double) where
+  instance ApproxEqual Matrix where
     approxEqual a b =
       columns a == columns b &&
       rows a == rows b &&
