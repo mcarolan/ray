@@ -116,3 +116,159 @@ module MatrixSpec where
         
         m `matmul` identity4 `shouldApproxBe` m
         identity4 `mattupmul` q `shouldApproxBe` q
+
+      it "should allow transposition" $ do
+        let m = matrix4 0   9   3   0
+                        9   8   0   8
+                        1   8   5   3
+                        0   0   5   8
+
+        transpose m `shouldApproxBe`
+          matrix4 0   9   1   0
+                  9   8   8   0
+                  3   0   5   5
+                  0   8   3   8
+
+      it "should transpose identity to identity" $ do
+        transpose identity4 `shouldApproxBe` identity4
+
+      it "should calculate the determinant of a 2x2 matrix" $ do
+        let m = matrix2 1     5
+                        (-3)  2
+
+        determinant m `shouldApproxBe` 17
+
+      it "should give submatrix of a 3x3 matrix" $ do
+        let m = matrix3 1     5   0
+                        (-3)  2   7
+                        0     6   (-3)
+
+        submatrix 0 2 m `shouldApproxBe`
+          matrix2   (-3)    2
+                    0       6
+      it "should give submatrix of a 4x4 matrix" $ do
+        let m = matrix4   (-6)    1     1     6
+                          (-8)    5     8     6
+                          (-1)    0     8     2
+                          (-7)    1     (-1)  1
+
+        submatrix 2 1 m `shouldApproxBe`
+          matrix3   (-6)    1       6
+                    (-8)    8       6
+                    (-7)    (-1)    1
+
+      it "should calculate the minor of a 3x3 matrix" $ do
+        let m = matrix3   3     5     0
+                          2     (-1)  (-7)
+                          6     (-1)  5
+
+        minor 1 0 m `shouldApproxBe` 25
+
+      it "should calculate cofactors" $ do
+        let m = matrix3   3   5     0
+                          2   (-1)  (-7)
+                          6   (-1)  5
+
+        minor 0 0 m `shouldApproxBe` (-12)
+        cofactor 0 0 m `shouldApproxBe` (-12)
+        minor 1 0 m `shouldApproxBe` 25
+        cofactor 1 0 m `shouldApproxBe` (-25)
+
+      it "should calculate the determinant of a 3x3 matrix" $ do
+        let m = matrix3   1     2     6
+                          (-5)  8     (-4)
+                          2     6     4
+
+        cofactor 0 0 m `shouldApproxBe` 56
+        cofactor 0 1 m `shouldApproxBe` 12
+        cofactor 0 2 m `shouldApproxBe` (-46)
+        determinant m `shouldApproxBe` (-196)
+
+      it "should calculate the determinant of a 4x4 matrix" $ do
+        let m = matrix4   (-2)      (-8)      3     5
+                          (-3)      1         7     3
+                          1         2         (-9)  6
+                          (-6)      7         7     (-9)
+
+        cofactor 0 0 m `shouldApproxBe` 690
+        cofactor 0 1 m `shouldApproxBe` 447
+        cofactor 0 2 m `shouldApproxBe` 210
+        cofactor 0 3 m `shouldApproxBe` 51
+        determinant m `shouldApproxBe` (-4071)
+
+      it "can check whether a matrix is invertable (true)" $ do
+          let m = matrix4     6     4     4     4
+                              5     5     7     6
+                              4     (-9)  3     (-7)
+                              9     1     7     (-6)
+
+          determinant m `shouldApproxBe` (-2120)
+          invertable m `shouldBe` True
+
+      it "can check whether a matrix is invertable (false)" $ do
+          let m = matrix4     (-4)      2     (-2)      (-3)
+                              9         6     2         6
+                              0         (-5)  1         (-5)
+                              0         0     0         0
+
+          determinant m `shouldApproxBe` 0
+          invertable m `shouldBe` False
+
+      it "can invert a 4x4 matrix" $ do
+          let m = matrix4 (-5)    2       6       (-8)
+                          1       (-5)    1       8
+                          7       7       (-6)    (-7)
+                          1       (-3)    7       4
+          let b = inverse m
+
+          b `shouldApproxBe`
+            matrix4     0.21805       0.45113     0.24060     (-0.04511)
+                        (-0.80827)    (-1.45677)  (-0.44361)  0.52068
+                        (-0.07895)    (-0.22368)  (-0.05263)  0.19737
+                        (-0.52256)    (-0.81391)  (-0.30075)  0.30639
+
+          determinant m `shouldApproxBe` 532
+          cofactor 2 3 m `shouldApproxBe` (-160)
+          b `at` (3, 2) `shouldApproxBe` ((-160) / 532)
+          cofactor 3 2 m `shouldApproxBe` 105
+          b `at` (2, 3) `shouldApproxBe` (105 / 532)
+
+      it "can invert a second matrix" $ do
+        let m = matrix4 8     (-5)      9     2
+                        7     5         6     1
+                        (-6)  0         9     6
+                        (-3)  0         (-9)  (-4)
+
+        inverse m `shouldApproxBe`
+          matrix4       (-0.15385)      (-0.15385)        (-0.28205)        (-0.53846)
+                        (-0.07692)      0.12308           0.02564           0.03077
+                        0.35897         0.35897           0.43590           0.92308
+                        (-0.69231)      (-0.69231)        (-0.76923)        (-1.92308)
+
+      it "can invert a third matrix" $ do
+        let m = matrix4 9       3       0       9
+                        (-5)    (-2)    (-6)    (-3)
+                        (-4)    9       6       4
+                        (-7)    6       6       2
+        inverse m `shouldApproxBe`
+          matrix4       (-0.04074)        (-0.07778)        0.14444       (-0.22222)
+                        (-0.07778)        0.03333           0.36667       (-0.33333)
+                        (-0.02901)        (-0.14630)        (-0.10926)    0.12963
+                        0.17778           0.06667           (-0.26667)    0.33333
+
+      it "multiplies a product by inverse correctly" $ do
+          let a = matrix4       3       (-9)        7       3
+                                3       (-8)        2       (-9)
+                                (-4)    4           4       1
+                                (-6)    5           (-1)    1
+
+          let b = matrix4       8       2         2       2
+                                3       (-1)      7       0
+                                7       0         5       4
+                                6       (-2)      0       5
+
+          let c = a `matmul` b
+
+          c `matmul` (inverse b) `shouldApproxBe` a
+
+

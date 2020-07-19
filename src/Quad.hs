@@ -3,8 +3,16 @@
 
   import Data.Array(Array, array, bounds, (!))
   import Data.List(intercalate)
+  import ApproxEqual
 
   data Quad = Quad { x, y, z, w :: Double } deriving (Show)
+
+  instance ApproxEqual Quad where
+    approxEqual a b =
+      approxEqual (x a) (x b) &&
+      approxEqual (y a) (y b) &&
+      approxEqual (z a) (z b) &&
+      approxEqual (w a) (w b)
 
   quadFromMatrix :: Matrix -> Quad
   quadFromMatrix m =
@@ -83,6 +91,12 @@
         allRows = [ rowNumbers r | r <- [0..rows m - 1]]
         numbers = unlines allRows
 
+  instance ApproxEqual Matrix where
+    approxEqual a b =
+      columns a == columns b &&
+      rows a == rows b &&
+      all (uncurry approxEqual) [ (a `at` (i, j), b `at` (i, j)) | i <- [0..rows a - 1], j <- [0..columns a - 1]]
+
   matrix :: Int -> Int -> [Double] -> Matrix
   matrix rows cols elems
     | length elems /= rows * cols = error (show (length elems) ++ " is the wrong number of elems for a " ++ show rows ++ "x" ++ show cols ++ " matrix")
@@ -160,6 +174,51 @@
       n = columns a
       p = rows b
       q = columns b
+
+  transpose :: Matrix -> Matrix
+  transpose m =
+    matrix (rows m) (columns m) [ m `at` (c, r) | r <- [0..rows m - 1], c <- [0..columns m - 1]]
+
+  determinant :: Matrix -> Double
+  determinant m
+    | rows m == 2 && columns m == 2 =
+      (m `at` (0, 0)) * (m `at` (1, 1)) - (m `at` (0, 1)) * (m `at` (1, 0))
+    | otherwise =
+      sum [valueAt c | c <- [0..columns m - 1]]
+    where
+      valueAt c = m `at` (0, c) * cofactor 0 c m
+
+  submatrix :: Int -> Int -> Matrix -> Matrix
+  submatrix r c m =
+    matrix (rows m - 1) (columns m - 1) [ m `at` (i, j) | i <- selectedRows, j <- selectedCols ]
+    where
+      selectedRows = [i | i <- [0..rows m - 1], i /= r ]
+      selectedCols = [i | i <- [0..columns m - 1], i /= c]
+
+  minor :: Int -> Int -> Matrix -> Double
+  minor r c m =
+    determinant (submatrix r c m)
+
+  cofactor :: Int -> Int -> Matrix -> Double
+  cofactor r c m =
+    negate * minor r c m
+    where
+      negate | even (r + c) = 1
+             | otherwise = -1
+
+  invertable :: Matrix -> Bool
+  invertable m = not (determinant m `approxEqual` 0)
+
+  inverse :: Matrix -> Matrix
+  inverse m
+    | det `approxEqual` 0 = error("cannot invert as determinant is 0 for " ++ show m)
+    | otherwise =
+      transpose m'
+    where
+      m' = matrix (rows m) (columns m) els
+      det = determinant m
+      valueAt r c = cofactor r c m / det
+      els = [ valueAt r c | r <- [0..rows m - 1], c <- [0..columns m - 1]]
 
   mattupmul :: Matrix -> Quad -> Quad
   mattupmul a q =
