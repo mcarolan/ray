@@ -53,7 +53,7 @@ main =
     environment = Environment gravity wind
 
     start = point 0 1 0
-    velocity = (normalize (vector 1 1.8 0)) `mul` 11.25
+    velocity = (normalize (vector 1 1.8 0)) `scalarmul` 11.25
     projectile = Projectile start velocity
 
     canvas = buildCanvas 900 550

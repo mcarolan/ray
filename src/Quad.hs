@@ -47,11 +47,11 @@
   neg :: Quad -> Quad
   neg = minus (Quad 0 0 0 0)
 
-  mul :: Quad -> Double -> Quad
-  mul q n = Quad (x q * n) (y q * n) (z q * n) (w q * n)
+  scalarmul :: Quad -> Double -> Quad
+  scalarmul q n = Quad (x q * n) (y q * n) (z q * n) (w q * n)
 
   divide :: Quad -> Double -> Quad
-  divide q n = mul q (1 / n)
+  divide q n = scalarmul q (1 / n)
 
   magnitude :: Quad -> Double
   magnitude q = sqrt (square x' + square y' + square z' + square w')
@@ -81,6 +81,25 @@
           z' = ((x a) * (y b)) - ((y a) * (x b))
 
   newtype Matrix = Matrix { elems :: Array (Int, Int) Double}
+  
+  class MatrixMultiply a where
+    mul :: Matrix -> a -> a
+    
+  instance MatrixMultiply Matrix where
+    mul a b 
+      | n /= p = error ("number of columns in a did not match number of rows in b for:\n" ++ show a ++ "\nand\n" ++ show b)
+      | otherwise = matrix (rows a) (columns b) [ valueAt r c | r <- [0..m - 1], c <- [0..q - 1] ]
+      where
+        productsAt r c = [ (a `at` (r, k)) * (b `at` (k, c)) | k <- [0 .. p - 1]]
+        valueAt r c = sum (productsAt r c)
+        m = rows a
+        n = columns a
+        p = rows b
+        q = columns b
+        
+  instance MatrixMultiply Quad where
+    mul a q =
+      quadFromMatrix (a `mul` matrixFromQuad q)
 
   instance Show Matrix where
     show m =
@@ -163,18 +182,6 @@
             0 0 1 0
             0 0 0 1
 
-  matmul :: Matrix -> Matrix -> Matrix
-  matmul a b
-    | n /= p = error ("number of columns in a did not match number of rows in b for:\n" ++ show a ++ "\nand\n" ++ show b)
-    | otherwise = matrix (rows a) (columns b) [ valueAt r c | r <- [0..m - 1], c <- [0..q - 1] ]
-    where
-      productsAt r c = [ (a `at` (r, k)) * (b `at` (k, c)) | k <- [0 .. p - 1]]
-      valueAt r c = sum (productsAt r c)
-      m = rows a
-      n = columns a
-      p = rows b
-      q = columns b
-
   transpose :: Matrix -> Matrix
   transpose m =
     matrix (rows m) (columns m) [ m `at` (c, r) | r <- [0..rows m - 1], c <- [0..columns m - 1]]
@@ -219,10 +226,6 @@
       det = determinant m
       valueAt r c = cofactor r c m / det
       els = [ valueAt r c | r <- [0..rows m - 1], c <- [0..columns m - 1]]
-
-  mattupmul :: Matrix -> Quad -> Quad
-  mattupmul a q =
-    quadFromMatrix (matmul a (matrixFromQuad q))
 
   at :: Matrix -> (Int, Int) -> Double
   at m rc@(r, c)

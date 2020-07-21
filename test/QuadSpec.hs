@@ -80,7 +80,7 @@ where
         it "can multiply a quad by a scalar" $ do
           let a = Quad 1 (-2) 3 (-4)
           let expected = Quad 3.5 (-7) 10.5 (-14)
-          a `mul` 3.5 `shouldApproxBe` expected
+          a `scalarmul` 3.5 `shouldApproxBe` expected
 
         it "can divde a quad by a scalar" $ do
           let a = Quad 1 (-2) 3 (-4)

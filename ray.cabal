@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a4df29ee21af4f985d28206f5b06024f4cda23c598781ca543d7b52835b02b4a
+-- hash: 4c50880f991d53b944005fc9c18783330c6db2bd3769dc6522a9abbd0c88a0a7
 
 name:           ray
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Colour
       Lib
       Quad
+      Transforms
   other-modules:
       Paths_ray
   hs-source-dirs:
@@ -64,6 +65,7 @@ test-suite ray-test
       MatrixSpec
       QuadSpec
       TestUtil
+      TransformsSpec
       Paths_ray
   hs-source-dirs:
       test

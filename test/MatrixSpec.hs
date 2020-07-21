@@ -83,7 +83,7 @@ module MatrixSpec where
                         4       3   6   5
                         1       2   7   8
 
-        a `matmul` b `shouldApproxBe`
+        a `mul` b `shouldApproxBe`
           matrix4 20    22    50    48
                   44    54    114   108
                   40    58    110   102
@@ -97,7 +97,7 @@ module MatrixSpec where
 
         let b = Quad 1 2 3 1
 
-        (a `mattupmul` b) `shouldApproxBe` Quad 18 24 33 1
+        (a `mul` b) `shouldApproxBe` Quad 18 24 33 1
 
       it "should allow conversion between quad and matrix" $ do
         let q = Quad 1 2 3 4
@@ -114,8 +114,8 @@ module MatrixSpec where
                         0   0   0   1
         let q = Quad 1 2 3 4
         
-        m `matmul` identity4 `shouldApproxBe` m
-        identity4 `mattupmul` q `shouldApproxBe` q
+        m `mul` identity4 `shouldApproxBe` m
+        identity4 `mul` q `shouldApproxBe` q
 
       it "should allow transposition" $ do
         let m = matrix4 0   9   3   0
@@ -267,8 +267,8 @@ module MatrixSpec where
                                 7       0         5       4
                                 6       (-2)      0       5
 
-          let c = a `matmul` b
+          let c = a `mul` b
 
-          c `matmul` (inverse b) `shouldApproxBe` a
+          c `mul` (inverse b) `shouldApproxBe` a
 
 
