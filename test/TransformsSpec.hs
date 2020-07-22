@@ -39,3 +39,70 @@ module TransformsSpec where
         let transform = inverse (scaling 2 3 4)
         let v = vector (-4) 6 8
         transform `mul` v `shouldApproxBe` vector (-2) 2 2
+
+
+      it "allows scaling by a negative value (reflection)" $ do
+        let transform = scaling (-1) 1 1
+        let p = point 2 3 4
+
+        transform `mul` p `shouldApproxBe` point (-2) 3 4
+
+      it "allows rotation around the X axis" $ do
+        let p = point 0 1 0
+        let half_quarter = rotateX (pi / 4)
+        let full_quarter = rotateX (pi / 2)
+
+        half_quarter `mul` p `shouldApproxBe` point 0 (sqrt 2 / 2) (sqrt 2 / 2)
+        full_quarter `mul` p `shouldApproxBe` point 0 0 1
+
+      it "allows rotate around the X axis in the opposite direction" $ do
+        let p = point 0 1 0
+        let half_quarter = rotateX (pi / 4)
+
+        inverse half_quarter `mul` p `shouldApproxBe` point 0 (sqrt 2 / 2) (-(sqrt 2 / 2))
+
+      it "allows rotation around the Y axis" $ do
+        let p = point 0 0 1
+        let half_quarter = rotateY (pi / 4)
+        let full_quarter = rotateY (pi / 2)
+
+        half_quarter `mul` p `shouldApproxBe` point (sqrt 2 / 2) 0 (sqrt 2 / 2)
+        full_quarter `mul` p `shouldApproxBe` point 1 0 0
+
+      it "allows rotation around the Z axis" $ do
+        let p = point 0 1 0
+        let half_quarter = rotateZ (pi / 4)
+        let full_quarter = rotateZ (pi / 2)
+
+        half_quarter `mul` p `shouldApproxBe` point (-(sqrt 2) / 2) (sqrt 2 / 2) 0
+        full_quarter `mul` p `shouldApproxBe` point (-1) 0 0
+
+      it "allows shearing of x in proportion to y" $ do
+        let p = point 2 3 4
+        let transform = shearing 1 0 0 0 0 0
+        transform `mul` p `shouldApproxBe` point 5 3 4
+
+      it "allows shearing of x in proportion to z" $ do
+        let p = point 2 3 4
+        let transform = shearing 0 1 0 0 0 0
+        transform `mul` p `shouldApproxBe` point 6 3 4
+
+      it "allows shearing of y in proportion to x" $ do
+        let p = point 2 3 4
+        let transform = shearing 0 0 1 0 0 0
+        transform `mul` p `shouldApproxBe` point 2 5 4
+
+      it "allows shearing of y in proportion to z" $ do
+        let p = point 2 3 4
+        let transform = shearing 0 0 0 1 0 0
+        transform `mul` p `shouldApproxBe` point 2 7 4
+
+      it "allows shearing of z in proportion to x" $ do
+        let p = point 2 3 4
+        let transform = shearing 0 0 0 0 1 0
+        transform `mul` p `shouldApproxBe` point 2 3 6
+
+      it "allows shearing of z in proportion to y" $ do
+        let p = point 2 3 4
+        let transform = shearing 0 0 0 0 0 1
+        transform `mul` p `shouldApproxBe` point 2 3 7
