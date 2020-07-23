@@ -106,3 +106,28 @@ module TransformsSpec where
         let p = point 2 3 4
         let transform = shearing 0 0 0 0 0 1
         transform `mul` p `shouldApproxBe` point 2 3 7
+
+      it "Individual transformations are applied in sequence" $ do
+        let p = point 1 0 1
+        let a = rotateX (pi / 2)
+        let b = scaling 5 5 5
+        let c = translation 10 5 7
+
+        let p1 = a `mul` p
+        p1 `shouldApproxBe` point 1 (-1) 0
+
+        let p2 = b `mul` p1
+        p2 `shouldApproxBe` point 5 (-5) 0
+
+        let p3 = c `mul` p2
+        p3 `shouldApproxBe` point 15 0 7
+
+      it "Chained transformations must be applied in reverse order" $ do
+        let p = point 1 0 1
+        let a = rotateX (pi / 2)
+        let b = scaling 5 5 5
+        let c = translation 10 5 7
+
+        let t = c `mul` b `mul` a
+
+        t `mul` p `shouldApproxBe` point 15 0 7

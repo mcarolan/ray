@@ -1,59 +1,32 @@
 module Main where
 
-import Quad
-import Data.Functor
-import Control.Monad.Loops
 import Canvas
-import Colour
 import CanvasPPM
 import System.IO
+import Colour
+import Transforms
+import Quad
 
-data Projectile = Projectile { position :: Quad, velocity :: Quad } deriving (Show)
-data Environment = Environment { gravity :: Quad, wind :: Quad }
+draw :: Quad -> Colour -> Canvas -> Canvas
+draw q =
+  writePixel (round(188 * x q) + 250) (round(188 * y q) + 250)
 
-tick :: Environment -> Projectile -> Projectile
-tick e p =
-  Projectile pos vel
-  where
-    pos = (position p) `add` (velocity p)
-    vel = ((velocity p) `add` (gravity e)) `add` (wind e)
-
-plot :: Projectile -> Canvas -> Canvas
-plot projectile canvas =
-  writePixel canvasX canvasY red canvas
-  where
-    canvasX = round (x (position projectile))
-    canvasY = height canvas - round (y (position projectile))
-
-tickAndPlot :: Environment -> (Projectile, Canvas) -> (Projectile, Canvas)
-tickAndPlot env (proj, canv) =
-  (next, nextCanvas)
-  where
-    next = tick env proj
-    nextCanvas = plot next canv
-
-tickWhileAbove :: Environment -> (Projectile, Canvas) -> Canvas
-tickWhileAbove env (proj, canvas)
-  | yAbove0 nextProjectile = tickWhileAbove env next
-  | otherwise = canvas
-  where
-    next@(nextProjectile, _) = tickAndPlot env (proj, canvas)
-    yAbove0 p = (y (position p)) > 0
+drawall:: [(Quad, Colour)] -> Canvas -> Canvas
+drawall quads c =
+  foldl (\canvas (quad, colour) -> draw quad colour canvas) c quads
 
 main :: IO ()
 main =
   do
-    let final = tickWhileAbove environment (projectile, canvas)
+    let toPlot = take 12 hours `zip` repeat green
+    let final = drawall toPlot canvas
     let ppm = canvasToPPM final
-    _ <- writeFile "output.ppm" ppm
+    _ <- writeFile "clock.ppm" ppm
     return ()
   where
-    gravity = vector 0 (-0.1) 0
-    wind = vector (-0.01) 0 0
-    environment = Environment gravity wind
-
-    start = point 0 1 0
-    velocity = (normalize (vector 1 1.8 0)) `scalarmul` 11.25
-    projectile = Projectile start velocity
-
-    canvas = buildCanvas 900 550
+    baseCanvas = buildCanvas 500 500
+    canvas = writePixel 250 250 blue baseCanvas
+    nextHour p = rotateZ (pi / 6.0) `mul` p
+    center = translation 250 250 0
+    twelve = point 0 1 0
+    hours = iterate nextHour twelve

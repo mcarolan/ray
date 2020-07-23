@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4c50880f991d53b944005fc9c18783330c6db2bd3769dc6522a9abbd0c88a0a7
+-- hash: 477ecd1e5f1b185eff5868d07636f3ed12a006de3423fb08b2fe4e3d38eeadc1
 
 name:           ray
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
 executable ray-exe
   main-is: Main.hs
   other-modules:
+      ProjectileMain
       Paths_ray
   hs-source-dirs:
       app
