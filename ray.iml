@@ -43,5 +43,6 @@
     <orderEntry type="library" name="unix-2.7.2.2" level="project" />
     <orderEntry type="library" name="primitive-0.7.0.1" level="project" />
     <orderEntry type="library" name="bytestring-0.10.10.0" level="project" />
+    <orderEntry type="library" name="safe-0.3.19" level="project" />
   </component>
 </module>

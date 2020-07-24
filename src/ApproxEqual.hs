@@ -4,6 +4,7 @@ module ApproxEqual
 
   import Colour
   import Data.Array
+  import Data.Maybe
 
   class ApproxEqual a where
     approxEqual :: a -> a -> Bool
@@ -21,3 +22,10 @@ module ApproxEqual
     approxEqual x y =
       length x == length y &&
       all (uncurry approxEqual) (zip x y)
+
+  instance (ApproxEqual a) => ApproxEqual (Maybe a) where
+    approxEqual x y =
+      case (x, y) of
+        (Just xValue, Just yValue) -> xValue `approxEqual` yValue
+        (Nothing, Nothing) -> True
+        _ -> False
