@@ -3,6 +3,7 @@ module Ray where
 import Quad
 import ApproxEqual
 import Safe
+import Transforms
 
 data Ray = Ray { origin, direction :: Quad }
 
@@ -10,7 +11,10 @@ position :: Ray -> Double -> Quad
 position r t =
   (direction r `scalarmul` t) `add` origin r
 
-newtype Sphere = Sphere { sphereId :: ShapeId }
+data Sphere = Sphere { sphereId :: ShapeId, sphereTransform :: Matrix }
+
+sphere :: ShapeId -> Sphere
+sphere shapeId = Sphere shapeId identityM
 
 data ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
 
@@ -25,20 +29,22 @@ instance Eq Intersection where
   (==) x y =
     with x == with y &&
       t x `approxEqual` t y
-      
+        
 instance Ord Intersection where
-  compare x y =
-    compare (t x) (t y)
+  compare x y
+    | t x `approxEqual` t y = EQ
+    | otherwise = compare (t x) (t y)
 
 intersect :: Sphere -> Ray -> [Intersection]
 intersect sphere ray
   | discriminant < 0 = []
   | otherwise = [t1, t2]
   where
-  sphereToRay = origin ray `minus` point 0 0 0
+  ray' = ray `transform` inverse (sphereTransform sphere)
+  sphereToRay = origin ray' `minus` point 0 0 0
 
-  a = direction ray `dot` direction ray
-  b = 2 * (direction ray `dot` sphereToRay)
+  a = direction ray' `dot` direction ray'
+  b = 2 * (direction ray' `dot` sphereToRay)
   c = (sphereToRay `dot` sphereToRay) - 1
 
   discriminant = (b *  b) - 4 * a * c
@@ -51,4 +57,7 @@ hit intersections =
   minimumMay nonNeg
   where
     nonNeg = filter (\i -> t i >= 0) intersections
-  
+
+transform :: Ray -> Matrix -> Ray
+transform r m =
+  Ray (m `mul` origin r) (m `mul` direction r)

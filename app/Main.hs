@@ -1,32 +1,42 @@
 module Main where
 
+import Quad
 import Canvas
+import Colour(red, black)
+import Ray
+import Data.Maybe
 import CanvasPPM
 import System.IO
-import Colour
 import Transforms
-import Quad
-
-draw :: Quad -> Colour -> Canvas -> Canvas
-draw q =
-  writePixel (round(188 * x q) + 250) (round(188 * y q) + 250)
-
-drawall:: [(Quad, Colour)] -> Canvas -> Canvas
-drawall quads c =
-  foldl (\canvas (quad, colour) -> draw quad colour canvas) c quads
 
 main :: IO ()
 main =
   do
-    let toPlot = take 12 hours `zip` repeat green
-    let final = drawall toPlot canvas
-    let ppm = canvasToPPM final
-    _ <- writeFile "clock.ppm" ppm
+    _ <- writeFile "circle.ppm" ppm
     return ()
   where
-    baseCanvas = buildCanvas 500 500
-    canvas = writePixel 250 250 blue baseCanvas
-    nextHour p = rotateZ (pi / 6.0) `mul` p
-    center = translation 250 250 0
-    twelve = point 0 1 0
-    hours = iterate nextHour twelve
+    rayOrigin = point 0 0 (-5)
+    wallZ = 10
+    wallSize = 7
+    canvasPixels :: Double
+    canvasPixels = 500
+    pixelSize = wallSize / canvasPixels
+    half = wallSize / 2
+
+    worldY y = half - pixelSize * y
+    worldX x = -half + pixelSize * x
+    worldPos x y = point (worldX x) (worldY y) wallZ
+
+    rayAt x y = Ray rayOrigin (normalize (worldPos x y `minus` rayOrigin))
+    isHit x y = isJust (hit (shape `intersect` rayAt x y))
+
+    colourAt x y | isHit x y = red
+    colourAt x y = black
+
+    pixels = [ [ colourAt x y | x <- [0..(canvasPixels - 1)]] | y <- [0..(canvasPixels - 1)]]
+
+    c = listToCanvas pixels
+    ppm = canvasToPPM c
+    shapeId = ShapeId 0
+    t = shearing 1 0 0 0 0 0 `mul` rotateZ (pi / 4) `mul` scaling 0.5 1 1
+    shape = Sphere shapeId t

@@ -1,6 +1,13 @@
 module Transforms where
 
   import Quad(Matrix, matrix4)
+  
+  identityM :: Matrix
+  identityM =
+    matrix4   1   0   0   0
+              0   1   0   0
+              0   0   1   0
+              0   0   0   1
 
   translation :: Double -> Double -> Double -> Matrix
   translation x y z =
