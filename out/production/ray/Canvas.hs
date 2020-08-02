@@ -25,6 +25,14 @@ module Canvas
     where
       row = canvas ! y
 
+  listToCanvas :: [[Colour]] -> Canvas
+  listToCanvas l =
+    listArray (0, height - 1) rows
+    where
+      height = length l
+      width = length (head l)
+      rows = map (listArray (0, width - 1)) l
+
   canvasToList :: Canvas -> [[Colour]]
   canvasToList canvas =
     elems (fmap elems canvas)

@@ -12,7 +12,7 @@ position :: Ray -> Double -> Quad
 position r t =
   (direction r `scalarmul` t) `add` origin r
 
-data Sphere = Sphere { sphereId :: ShapeId, sphereTransform :: Matrix, sphereMaterial :: Material }
+data Sphere = Sphere { sphereId :: ShapeId, sphereTransform :: Matrix, sphereMateiral :: Material }
 
 sphere :: ShapeId -> Sphere
 sphere shapeId = Sphere shapeId identityM defaultMaterial

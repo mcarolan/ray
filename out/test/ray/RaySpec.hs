@@ -94,11 +94,11 @@ spec = do
     it "intersects a scaled sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = (sphere shapeId) { sphereTransform = scaling 2 2 2 }
+      let s = Sphere shapeId (scaling 2 2 2)
       map t (s `intersect` r) `shouldApproxBe` [ 3, 7 ]
 
     it "intersects a translated sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = (sphere shapeId) { sphereTransform = translation 5 0 0 }
+      let s = Sphere shapeId (translation 5 0 0)
       map t (s `intersect` r) `shouldApproxBe` []

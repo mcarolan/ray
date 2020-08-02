@@ -231,3 +231,7 @@
   at m rc@(r, c)
     | r >= rows m || c >= columns m = error (show rc ++ " failed bounds check on " ++ show m)
     | otherwise = elems m ! rc
+
+  reflect :: Quad -> Quad -> Quad
+  reflect v normal =
+    v `minus` (normal `scalarmul` 2 `scalarmul` dot v normal)

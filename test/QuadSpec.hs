@@ -116,3 +116,13 @@ where
           (vector (1 :: Double) 2 3) `cross` (vector 2 3 4) `shouldApproxBe` (vector (-1) 2 (-1))
         it "is (1, -2, 1) for (2, 3, 4) cross (1, 2, 3)" $ do
            (vector (2 :: Double) 3 4) `cross` (vector 1 2 3) `shouldApproxBe` (vector 1 (-2) 1)
+
+      describe "reflect" $ do
+        it "Reflects a vector approaching at 45deg" $ do
+          let v = vector 1 (-1) 0
+          let n = vector 0 1 0
+          reflect v n `shouldApproxBe` vector 1 1 0
+        it "Reflects a vector off a slanted surface" $ do
+          let v = vector 0 (-1) 0
+          let n = vector (sqrt 2 / 2) (sqrt 2 / 2) 0
+          reflect v n `shouldApproxBe` vector 1 0 0

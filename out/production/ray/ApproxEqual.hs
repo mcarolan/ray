@@ -2,22 +2,15 @@
 module ApproxEqual
   where
 
-  import Quad
   import Colour
   import Data.Array
+  import Data.Maybe
 
   class ApproxEqual a where
     approxEqual :: a -> a -> Bool
 
   instance ApproxEqual Double where
     approxEqual a b = ((abs (a - b)) < 0.00001)
-
-  instance ApproxEqual Quad where
-    approxEqual a b =
-      approxEqual (x a) (x b) &&
-      approxEqual (y a) (y b) &&
-      approxEqual (z a) (z b) &&
-      approxEqual (w a) (w b)
 
   instance ApproxEqual Colour where
     approxEqual x y =
@@ -30,8 +23,9 @@ module ApproxEqual
       length x == length y &&
       all (uncurry approxEqual) (zip x y)
 
-  instance ApproxEqual (Array (Int, Int) Double) where
-    approxEqual a b =
-      columns a == columns b &&
-      rows a == rows b &&
-      all (uncurry approxEqual) [ (a `at` (i, j), b `at` (i, j)) | i <- [0..rows a - 1], j <- [0..columns a - 1]]
+  instance (ApproxEqual a) => ApproxEqual (Maybe a) where
+    approxEqual x y =
+      case (x, y) of
+        (Just xValue, Just yValue) -> xValue `approxEqual` yValue
+        (Nothing, Nothing) -> True
+        _ -> False

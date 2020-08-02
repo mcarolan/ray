@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4cac44945675e53d16a9ab4c14b4059a10e34df9b397a6009d3d5a5772a1dc21
+-- hash: a48cbfc8ca198b6f5222506cad29cc11df72eea1a623aa989375fd1f1a06b848
 
 name:           ray
 version:        0.1.0.0
@@ -32,6 +32,7 @@ library
       CanvasPPM
       Colour
       Lib
+      Lighting
       Quad
       Ray
       Transforms
@@ -66,9 +67,11 @@ test-suite ray-test
   other-modules:
       CanvasPPMSpec
       CanvasSpec
+      LightingSpec
       MatrixSpec
       QuadSpec
       RaySpec
+      SphereSpec
       TestUtil
       TransformsSpec
       Paths_ray

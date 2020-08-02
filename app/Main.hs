@@ -39,4 +39,4 @@ main =
     ppm = canvasToPPM c
     shapeId = ShapeId 0
     t = shearing 1 0 0 0 0 0 `mul` rotateZ (pi / 4) `mul` scaling 0.5 1 1
-    shape = Sphere shapeId t
+    shape = (sphere shapeId) { sphereTransform = t }

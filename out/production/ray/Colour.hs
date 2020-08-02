@@ -20,3 +20,5 @@ module Colour where
   black = Colour 0 0 0
   white = Colour 1 1 1
   red = Colour 1 0 0
+  blue = Colour 0 0 1
+  green = Colour 0 1 0

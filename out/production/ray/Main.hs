@@ -1,59 +1,42 @@
 module Main where
 
 import Quad
-import Data.Functor
-import Control.Monad.Loops
 import Canvas
-import Colour
+import Colour(red, black)
+import Ray
+import Data.Maybe
 import CanvasPPM
 import System.IO
-
-data Projectile = Projectile { position :: Quad, velocity :: Quad } deriving (Show)
-data Environment = Environment { gravity :: Quad, wind :: Quad }
-
-tick :: Environment -> Projectile -> Projectile
-tick e p =
-  Projectile pos vel
-  where
-    pos = (position p) `add` (velocity p)
-    vel = ((velocity p) `add` (gravity e)) `add` (wind e)
-
-plot :: Projectile -> Canvas -> Canvas
-plot projectile canvas =
-  writePixel canvasX canvasY red canvas
-  where
-    canvasX = round (x (position projectile))
-    canvasY = height canvas - round (y (position projectile))
-
-tickAndPlot :: Environment -> (Projectile, Canvas) -> (Projectile, Canvas)
-tickAndPlot env (proj, canv) =
-  (next, nextCanvas)
-  where
-    next = tick env proj
-    nextCanvas = plot next canv
-
-tickWhileAbove :: Environment -> (Projectile, Canvas) -> Canvas
-tickWhileAbove env (proj, canvas)
-  | yAbove0 nextProjectile = tickWhileAbove env next
-  | otherwise = canvas
-  where
-    next@(nextProjectile, _) = tickAndPlot env (proj, canvas)
-    yAbove0 p = (y (position p)) > 0
+import Transforms
 
 main :: IO ()
 main =
   do
-    let final = tickWhileAbove environment (projectile, canvas)
-    let ppm = canvasToPPM final
-    _ <- writeFile "output.ppm" ppm
+    _ <- writeFile "circle.ppm" ppm
     return ()
   where
-    gravity = vector 0 (-0.1) 0
-    wind = vector (-0.01) 0 0
-    environment = Environment gravity wind
+    rayOrigin = point 0 0 (-5)
+    wallZ = 10
+    wallSize = 7
+    canvasPixels :: Double
+    canvasPixels = 500
+    pixelSize = wallSize / canvasPixels
+    half = wallSize / 2
 
-    start = point 0 1 0
-    velocity = (normalize (vector 1 1.8 0)) `mul` 11.25
-    projectile = Projectile start velocity
+    worldY y = half - pixelSize * y
+    worldX x = -half + pixelSize * x
+    worldPos x y = point (worldX x) (worldY y) wallZ
 
-    canvas = buildCanvas 900 550
+    rayAt x y = Ray rayOrigin (normalize (worldPos x y `minus` rayOrigin))
+    isHit x y = isJust (hit (shape `intersect` rayAt x y))
+
+    colourAt x y | isHit x y = red
+    colourAt x y = black
+
+    pixels = [ [ colourAt x y | x <- [0..(canvasPixels - 1)]] | y <- [0..(canvasPixels - 1)]]
+
+    c = listToCanvas pixels
+    ppm = canvasToPPM c
+    shapeId = ShapeId 0
+    t = shearing 1 0 0 0 0 0 `mul` rotateZ (pi / 4) `mul` scaling 0.5 1 1
+    shape = Sphere shapeId t

@@ -1,9 +1,18 @@
  module Quad
   where
 
-  import Data.Array
+  import Data.Array(Array, array, bounds, (!))
+  import Data.List(intercalate)
+  import ApproxEqual
 
   data Quad = Quad { x, y, z, w :: Double } deriving (Show)
+
+  instance ApproxEqual Quad where
+    approxEqual a b =
+      approxEqual (x a) (x b) &&
+      approxEqual (y a) (y b) &&
+      approxEqual (z a) (z b) &&
+      approxEqual (w a) (w b)
 
   quadFromMatrix :: Matrix -> Quad
   quadFromMatrix m =
@@ -38,11 +47,11 @@
   neg :: Quad -> Quad
   neg = minus (Quad 0 0 0 0)
 
-  mul :: Quad -> Double -> Quad
-  mul q n = Quad (x q * n) (y q * n) (z q * n) (w q * n)
+  scalarmul :: Quad -> Double -> Quad
+  scalarmul q n = Quad (x q * n) (y q * n) (z q * n) (w q * n)
 
   divide :: Quad -> Double -> Quad
-  divide q n = mul q (1 / n)
+  divide q n = scalarmul q (1 / n)
 
   magnitude :: Quad -> Double
   magnitude q = sqrt (square x' + square y' + square z' + square w')
@@ -71,17 +80,52 @@
           y' = ((z a) * (x b)) - ((x a) * (z b))
           z' = ((x a) * (y b)) - ((y a) * (x b))
 
-  data Matrix = Matrix { elems :: Array (Int, Int) Double }
+  newtype Matrix = Matrix { elems :: Array (Int, Int) Double}
+  
+  class MatrixMultiply a where
+    mul :: Matrix -> a -> a
+    
+  instance MatrixMultiply Matrix where
+    mul a b 
+      | n /= p = error ("number of columns in a did not match number of rows in b for:\n" ++ show a ++ "\nand\n" ++ show b)
+      | otherwise = matrix (rows a) (columns b) [ valueAt r c | r <- [0..m - 1], c <- [0..q - 1] ]
+      where
+        productsAt r c = [ (a `at` (r, k)) * (b `at` (k, c)) | k <- [0 .. p - 1]]
+        valueAt r c = sum (productsAt r c)
+        m = rows a
+        n = columns a
+        p = rows b
+        q = columns b
+        
+  instance MatrixMultiply Quad where
+    mul a q =
+      quadFromMatrix (a `mul` matrixFromQuad q)
+
+  instance Show Matrix where
+    show m =
+      show (rows m) ++ "x" ++ show (columns m) ++ " matrix:\n" ++
+      numbers
+      where
+        rowNumbers r = intercalate "\t|\t" [ show (m `at` (r, c)) | c <- [0..columns m - 1]]
+        allRows = [ rowNumbers r | r <- [0..rows m - 1]]
+        numbers = unlines allRows
+
+  instance ApproxEqual Matrix where
+    approxEqual a b =
+      columns a == columns b &&
+      rows a == rows b &&
+      all (uncurry approxEqual) [ (a `at` (i, j), b `at` (i, j)) | i <- [0..rows a - 1], j <- [0..columns a - 1]]
 
   matrix :: Int -> Int -> [Double] -> Matrix
-  matrix rows cols elems =
-    | length elems /= rows * cols = error ""
+  matrix rows cols elems
+    | length elems /= rows * cols = error (show (length elems) ++ " is the wrong number of elems for a " ++ show rows ++ "x" ++ show cols ++ " matrix")
+    | otherwise = Matrix (array ((0, 0), (rows, cols)) (indices `zip` elems))
+    where
+      indices = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1]]
 
   matrixFromQuad :: Quad -> Matrix
   matrixFromQuad q =
-    Matrix arr
-    where
-      arr = array ((0, 0), (4, 1)) [ ((0, 0), x q), ((1, 0), y q), ((2, 0), z q), ((3, 0), w q) ]
+    matrix 4 1 [ x q, y q, z q, w q ]
 
   matrix4 :: Double -> Double -> Double -> Double ->
              Double -> Double -> Double -> Double ->
@@ -93,11 +137,12 @@
           e f g h
           i j k l
           m n o p =
-          array ((0, 0), (4, 4)) [
-            ((0, 0), a), ((0, 1), b), ((0, 2), c), ((0, 3), d),
-            ((1, 0), e), ((1, 1), f), ((1, 2), g), ((1, 3), h),
-            ((2, 0), i), ((2, 1), j), ((2, 2), k), ((2, 3), l),
-            ((3, 0), m), ((3, 1), n), ((3, 2), o), ((3, 3), p) ]
+          matrix 4 4 [
+            a, b, c, d,
+            e, f, g, h,
+            i, j, k, l,
+            m, n, o, p
+          ]
 
   matrix2 :: Double -> Double ->
              Double -> Double ->
@@ -105,9 +150,10 @@
 
   matrix2 a b
           c d =
-          array ((0, 0), (2, 2)) [
-            ((0, 0), a), ((0, 1), b),
-            ((1, 0), c), ((1, 1), d) ]
+          matrix 2 2 [
+            a, b,
+            c, d
+          ]
 
   matrix3 :: Double -> Double -> Double ->
              Double -> Double -> Double ->
@@ -117,34 +163,75 @@
   matrix3  a b c
            d e f
            g h i =
-         array ((0, 0), (3, 3)) [
-          ((0, 0), a), ((0, 1), b), ((0, 2), c),
-          ((1, 0), d), ((1, 1), e), ((1, 2), f),
-          ((2, 0), g), ((2, 1), h), ((2, 2), i) ]
+           matrix 3 3 [
+            a, b, c,
+            d, e, f,
+            g, h, i
+           ]
 
   columns :: Matrix -> Int
-  columns m = snd (snd (bounds m))
+  columns m = snd (snd (bounds (elems m)))
 
   rows :: Matrix -> Int
-  rows m = fst (snd (bounds m))
+  rows m = fst (snd (bounds (elems m)))
 
-  matmul :: Matrix -> Matrix -> Matrix
-  matmul a b
-    | n /= p = error ("number of columns in a did not match number of rows in b for " ++ show (rows a) ++ "x" ++ show (columns a) ++ " and " ++ show (rows b) ++ "x" ++ show (columns b) ++ " matrices")
-    | otherwise = array ((0, 0), (rows a, columns b)) [ ((i, j), valueAt i j) | i <- [0..m - 1], j <- [0..q - 1] ]
+  identity4 :: Matrix
+  identity4 =
+    matrix4 1 0 0 0
+            0 1 0 0
+            0 0 1 0
+            0 0 0 1
+
+  transpose :: Matrix -> Matrix
+  transpose m =
+    matrix (rows m) (columns m) [ m `at` (c, r) | r <- [0..rows m - 1], c <- [0..columns m - 1]]
+
+  determinant :: Matrix -> Double
+  determinant m
+    | rows m == 2 && columns m == 2 =
+      (m `at` (0, 0)) * (m `at` (1, 1)) - (m `at` (0, 1)) * (m `at` (1, 0))
+    | otherwise =
+      sum [valueAt c | c <- [0..columns m - 1]]
     where
-      productsAt i j = [ (a `at` (i, k)) * (b `at` (k, j)) | k <- [0 .. p - 1]]
-      valueAt i j = sum (productsAt i j)
-      m = rows a
-      n = columns a
-      p = rows b
-      q = columns b
+      valueAt c = m `at` (0, c) * cofactor 0 c m
 
-  mattupmul :: Matrix -> Quad -> Quad
-  mattupmul a q =
-    quadFromMatrix (matmul a (matrixFromQuad q))
+  submatrix :: Int -> Int -> Matrix -> Matrix
+  submatrix r c m =
+    matrix (rows m - 1) (columns m - 1) [ m `at` (i, j) | i <- selectedRows, j <- selectedCols ]
+    where
+      selectedRows = [i | i <- [0..rows m - 1], i /= r ]
+      selectedCols = [i | i <- [0..columns m - 1], i /= c]
+
+  minor :: Int -> Int -> Matrix -> Double
+  minor r c m =
+    determinant (submatrix r c m)
+
+  cofactor :: Int -> Int -> Matrix -> Double
+  cofactor r c m =
+    negate * minor r c m
+    where
+      negate | even (r + c) = 1
+             | otherwise = -1
+
+  invertable :: Matrix -> Bool
+  invertable m = not (determinant m `approxEqual` 0)
+
+  inverse :: Matrix -> Matrix
+  inverse m
+    | det `approxEqual` 0 = error("cannot invert as determinant is 0 for " ++ show m)
+    | otherwise =
+      transpose m'
+    where
+      m' = matrix (rows m) (columns m) els
+      det = determinant m
+      valueAt r c = cofactor r c m / det
+      els = [ valueAt r c | r <- [0..rows m - 1], c <- [0..columns m - 1]]
 
   at :: Matrix -> (Int, Int) -> Double
-  at m rc@(r, c) 
-    | r >= rows m || c >= columns m = error (show rc ++ " failed bounds check on " ++ show (rows m) ++ "x" ++ show (columns m) ++ " matrix")
-    | otherwise = m ! rc
+  at m rc@(r, c)
+    | r >= rows m || c >= columns m = error (show rc ++ " failed bounds check on " ++ show m)
+    | otherwise = elems m ! rc
+
+  reflect :: Quad -> Quad -> Quad
+  reflect v normal =
+    v `minus` (normal `scalarmul` 2 `scalarmul` dot v normal)
