@@ -28,7 +28,7 @@ main =
     worldPos x y = point (worldX x) (worldY y) wallZ
 
     rayAt x y = Ray rayOrigin (normalize (worldPos x y `minus` rayOrigin))
-    isHit x y = isJust (hit ((shapeId, shape) `intersect` rayAt x y))
+    isHit x y = isJust (hit (shape `intersect` rayAt x y))
 
     colourAt x y | isHit x y = red
     colourAt x y = black
@@ -39,4 +39,4 @@ main =
     ppm = canvasToPPM c
     shapeId = ShapeId 0
     t = shearing 1 0 0 0 0 0 `mul` rotateZ (pi / 4) `mul` scaling 0.5 1 1
-    shape = sphere { sphereTransform = t }
+    shape = (sphere shapeId) { sphereTransform = t }

@@ -10,16 +10,16 @@ import System.IO
 import Transforms
 import Lighting
 
-colourAt :: Double -> Double -> Ray -> Sphere -> PointLight -> Colour
+colourAt :: Double -> Double -> Ray -> (ShapeId, Sphere) -> PointLight -> Colour
 colourAt x y ray shape light =
   case hit (shape `intersect` ray) of
     Just h ->
       let
         p = position ray (t h)
-        norm = normalAt shape p
+        norm = normalAt (snd shape) p
         eye = neg (direction ray)
       in
-        lighting (sphereMaterial shape) light p eye norm
+        lighting (sphereMaterial (snd shape)) light p eye norm
     Nothing -> black
 
 main :: IO ()
@@ -42,7 +42,7 @@ main =
 
     rayAt x y = Ray rayOrigin (normalize (worldPos x y `minus` rayOrigin))
 
-    pixels = [ [ colourAt x y (rayAt x y) shape light | x <- [0..(canvasPixels - 1)]] | y <- [0..(canvasPixels - 1)]]
+    pixels = [ [ colourAt x y (rayAt x y) (shapeId, shape) light | x <- [0..(canvasPixels - 1)]] | y <- [0..(canvasPixels - 1)]]
 
     c = listToCanvas pixels
     ppm = canvasToPPM c
@@ -50,4 +50,4 @@ main =
     material = defaultMaterial { materialColour = Colour 1 0.2 1 }
     light = PointLight white (point (-10) 10 (-10))
     trans = shearing 1 0 0 0 0 0 `mul` rotateZ (pi / 4) `mul` scaling 0.5 1 1
-    shape = (sphere shapeId) { sphereMaterial = material, sphereTransform = trans }
+    shape = sphere { sphereMaterial = material, sphereTransform = trans }

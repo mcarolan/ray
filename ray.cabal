@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 574dde4740c16f392f28b55dbec50744dead101552d663b82faac049f15a20f4
+-- hash: a9cf41d195f38c8eced71a3790fe7e03b5f807fb395e60f53da031593c7f0ec6
 
 name:           ray
 version:        0.1.0.0
@@ -36,6 +36,7 @@ library
       Quad
       Ray
       Transforms
+      World
   other-modules:
       Paths_ray
   hs-source-dirs:
@@ -75,6 +76,7 @@ test-suite ray-test
       SphereSpec
       TestUtil
       TransformsSpec
+      WorldSpec
       Paths_ray
   hs-source-dirs:
       test

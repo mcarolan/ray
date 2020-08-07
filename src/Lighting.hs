@@ -2,10 +2,26 @@ module Lighting where
 
   import Quad
   import Colour(Colour, addColour, mulScalar, mulColour, black, white)
+  import ApproxEqual
 
-  data PointLight = PointLight { lightIntensity :: Colour, lightPosition :: Quad }
+  data PointLight = PointLight { lightIntensity :: Colour, lightPosition :: Quad } deriving (Show)
 
-  data Material = Material { materialColour :: Colour, materialAmbient, materialDiffuse, materialSpecular, materialShininess :: Double }
+  instance ApproxEqual PointLight
+    where
+      approxEqual a b =
+        lightIntensity a `approxEqual` lightIntensity b &&
+          lightPosition a `approxEqual` lightPosition b
+
+  data Material = Material { materialColour :: Colour, materialAmbient, materialDiffuse, materialSpecular, materialShininess :: Double } deriving (Show)
+
+  instance ApproxEqual Material
+    where
+      approxEqual a b =
+        materialColour a `approxEqual` materialColour b &&
+        materialAmbient a `approxEqual` materialAmbient b &&
+        materialDiffuse a `approxEqual` materialDiffuse b &&
+        materialSpecular a `approxEqual` materialSpecular b &&
+        materialShininess a `approxEqual` materialShininess b
 
   defaultMaterial :: Material
   defaultMaterial = Material white 0.1 0.9 0.9 200.0

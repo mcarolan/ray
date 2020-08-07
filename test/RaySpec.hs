@@ -21,54 +21,50 @@ spec = do
     it "can calculate intersection of a sphere at 2 points" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = sphere shapeId
+      let s = (shapeId, sphere)
       map t (s `intersect` r) `shouldApproxBe` [ 4.0, 6.0 ]
       map with (s `intersect` r) `shouldBe` [ shapeId, shapeId ]
 
     it "can calculate intersection of a sphere at a tangent" $ do
       let r = Ray (point 0 1 (-5)) (vector 0 0 1)
-      let s = sphere (ShapeId 0)
+      let s = (ShapeId 0, sphere)
       map t (s `intersect` r) `shouldApproxBe` [ 5.0, 5.0 ]
 
     it "can show intersection when the ray misses the sphere" $ do
       let r = Ray (point 0 2 (-5)) (vector 0 0 1)
-      let s = sphere (ShapeId 0)
+      let s = (ShapeId 0, sphere)
       map t (s `intersect` r) `shouldApproxBe` []
 
     it "can intersect when a ray starts inside a sphere" $ do
       let r = Ray (point 0 0 0) (vector 0 0 1)
-      let s = sphere (ShapeId 0)
+      let s = (ShapeId 0, sphere)
       map t (s `intersect` r) `shouldApproxBe` [- 1, 1]
 
     it "can intersect when sphere is behind a ray" $ do
       let r = Ray (point 0 0 5) (vector 0 0 1)
-      let s = sphere (ShapeId 0)
+      let s = (ShapeId 0, sphere)
       map t (s `intersect` r) `shouldApproxBe` [ -6, -4 ]
 
     it "calculates hit when all intersections have a positive t" $ do
       let shapeId = ShapeId 0
-      let s = Sphere shapeId
       let i1 = Intersection shapeId 1
       let i2 = Intersection shapeId 2
       hit [i2, i1] `shouldApproxBe` Just i1
 
     it "calculates hit when some intersections have a negative t" $ do
       let shapeId = ShapeId 0
-      let s = sphere shapeId
       let i1 = Intersection shapeId (-1)
       let i2 = Intersection shapeId 1
       hit [i2, i1] `shouldApproxBe` Just i2
 
     it "calculates hit when all intersections have a negative t" $ do
       let shapeId = ShapeId 0
-      let s = sphere shapeId
       let i1 = Intersection shapeId (-2)
       let i2 = Intersection shapeId (-1)
       hit [i2, i1] `shouldApproxBe` Nothing
 
     it "always takes the lowest nonnegative intersection" $ do
       let shapeId = ShapeId 0
-      let s = sphere shapeId
       let i1 = Intersection shapeId 5
       let i2 = Intersection shapeId 7
       let i3 = Intersection shapeId (-3)
@@ -94,11 +90,11 @@ spec = do
     it "intersects a scaled sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = (sphere shapeId) { sphereTransform = scaling 2 2 2 }
-      map t (s `intersect` r) `shouldApproxBe` [ 3, 7 ]
+      let s = sphere { sphereTransform = scaling 2 2 2 }
+      map t ((shapeId, s) `intersect` r) `shouldApproxBe` [ 3, 7 ]
 
     it "intersects a translated sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = (sphere shapeId) { sphereTransform = translation 5 0 0 }
-      map t (s `intersect` r) `shouldApproxBe` []
+      let s = sphere { sphereTransform = translation 5 0 0 }
+      map t ((shapeId, s) `intersect` r) `shouldApproxBe` []

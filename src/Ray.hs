@@ -12,12 +12,17 @@ position :: Ray -> Double -> Quad
 position r t =
   (direction r `scalarmul` t) `add` origin r
 
-data Sphere = Sphere { sphereId :: ShapeId, sphereTransform :: Matrix, sphereMaterial :: Material }
+data Sphere = Sphere { sphereTransform :: Matrix, sphereMaterial :: Material } deriving (Show)
+      
+instance ApproxEqual Sphere where
+  approxEqual a b =
+    sphereTransform a `approxEqual` sphereTransform b &&
+    sphereMaterial a `approxEqual` sphereMaterial b
 
-sphere :: ShapeId -> Sphere
-sphere shapeId = Sphere shapeId identityM defaultMaterial
+sphere :: Sphere
+sphere = Sphere identityM defaultMaterial
 
-data ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
+newtype ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
 
 data Intersection = Intersection { with :: ShapeId, t :: Double } deriving Show
 
@@ -36,12 +41,12 @@ instance Ord Intersection where
     | t x `approxEqual` t y = EQ
     | otherwise = compare (t x) (t y)
 
-intersect :: Sphere -> Ray -> [Intersection]
+intersect :: (ShapeId, Sphere) -> Ray -> [Intersection]
 intersect sphere ray
   | discriminant < 0 = []
   | otherwise = [t1, t2]
   where
-  ray' = ray `transform` inverse (sphereTransform sphere)
+  ray' = ray `transform` inverse (sphereTransform (snd sphere))
   sphereToRay = origin ray' `minus` point 0 0 0
 
   a = direction ray' `dot` direction ray'
@@ -50,8 +55,8 @@ intersect sphere ray
 
   discriminant = (b *  b) - 4 * a * c
 
-  t1 = Intersection (sphereId sphere) ((-b - sqrt discriminant) / (2 * a))
-  t2 = Intersection (sphereId sphere) ((-b + sqrt discriminant) / (2 * a))
+  t1 = Intersection (fst sphere) ((-b - sqrt discriminant) / (2 * a))
+  t2 = Intersection (fst sphere) ((-b + sqrt discriminant) / (2 * a))
 
 hit :: [Intersection] -> Maybe Intersection
 hit intersections = 
