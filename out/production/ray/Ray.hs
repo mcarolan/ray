@@ -41,8 +41,8 @@ instance Ord Intersection where
     | t x `approxEqual` t y = EQ
     | otherwise = compare (t x) (t y)
 
-intersect :: (ShapeId, Sphere) -> Ray -> [Intersection]
-intersect sphere ray
+intersect :: Ray -> (ShapeId, Sphere) -> [Intersection]
+intersect ray sphere
   | discriminant < 0 = []
   | otherwise = [t1, t2]
   where

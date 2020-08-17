@@ -28,7 +28,7 @@ main =
     worldPos x y = point (worldX x) (worldY y) wallZ
 
     rayAt x y = Ray rayOrigin (normalize (worldPos x y `minus` rayOrigin))
-    isHit x y = isJust (hit ((shapeId, shape) `intersect` rayAt x y))
+    isHit x y = isJust (hit (rayAt x y `intersect` (shapeId, shape)))
 
     colourAt x y | isHit x y = red
     colourAt x y = black

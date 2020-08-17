@@ -24,16 +24,18 @@ sphere = Sphere identityM defaultMaterial
 
 newtype ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
 
-data Intersection = Intersection { with :: ShapeId, t :: Double } deriving Show
+data Intersection = Intersection { with :: (ShapeId, Sphere), t :: Double } deriving Show
 
 instance ApproxEqual Intersection where
     approxEqual x y =
-      with x == with y &&
+      fst (with x) == fst (with y) &&
+      snd (with x) `approxEqual` snd (with y) &&
       t x `approxEqual` t y
       
 instance Eq Intersection where
   (==) x y =
-    with x == with y &&
+      fst (with x) == fst (with y) &&
+      snd (with x) `approxEqual` snd (with y) &&
       t x `approxEqual` t y
         
 instance Ord Intersection where
@@ -41,8 +43,8 @@ instance Ord Intersection where
     | t x `approxEqual` t y = EQ
     | otherwise = compare (t x) (t y)
 
-intersect :: (ShapeId, Sphere) -> Ray -> [Intersection]
-intersect sphere ray
+intersect :: Ray -> (ShapeId, Sphere) -> [Intersection]
+intersect ray sphere
   | discriminant < 0 = []
   | otherwise = [t1, t2]
   where
@@ -55,8 +57,30 @@ intersect sphere ray
 
   discriminant = (b *  b) - 4 * a * c
 
-  t1 = Intersection (fst sphere) ((-b - sqrt discriminant) / (2 * a))
-  t2 = Intersection (fst sphere) ((-b + sqrt discriminant) / (2 * a))
+  t1 = Intersection sphere ((-b - sqrt discriminant) / (2 * a))
+  t2 = Intersection sphere ((-b + sqrt discriminant) / (2 * a))
+
+data Computations = Computations { object :: (ShapeId, Sphere), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool }
+
+prepareComputations :: Intersection -> Ray -> Computations
+prepareComputations int ray =
+  Computations {
+    object = obj,
+    compsT = t int,
+    compsPoint = p,
+    compsEyeV = eyeV,
+    compsNormalV = computedNormalV,
+    inside = isInside
+  }
+  where
+    obj = with int
+    p = position ray (t int)
+    normalV = normalAt (snd obj) p
+    normalDotEye = dot normalV eyeV
+    eyeV = neg (direction ray)
+    isInside = normalDotEye < 0
+    computedNormalV | isInside = neg normalV
+                    | otherwise = normalV
 
 hit :: [Intersection] -> Maybe Intersection
 hit intersections = 

@@ -22,28 +22,28 @@ spec = do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
       let s = (shapeId, sphere)
-      map t (s `intersect` r) `shouldApproxBe` [ 4.0, 6.0 ]
-      map with (s `intersect` r) `shouldBe` [ shapeId, shapeId ]
+      map t (r `intersect` s) `shouldApproxBe` [ 4.0, 6.0 ]
+      map with (r `intersect` s) `shouldBe` [ shapeId, shapeId ]
 
     it "can calculate intersection of a sphere at a tangent" $ do
       let r = Ray (point 0 1 (-5)) (vector 0 0 1)
       let s = (ShapeId 0, sphere)
-      map t (s `intersect` r) `shouldApproxBe` [ 5.0, 5.0 ]
+      map t (r `intersect` s) `shouldApproxBe` [ 5.0, 5.0 ]
 
     it "can show intersection when the ray misses the sphere" $ do
       let r = Ray (point 0 2 (-5)) (vector 0 0 1)
       let s = (ShapeId 0, sphere)
-      map t (s `intersect` r) `shouldApproxBe` []
+      map t (r `intersect` s) `shouldApproxBe` []
 
     it "can intersect when a ray starts inside a sphere" $ do
       let r = Ray (point 0 0 0) (vector 0 0 1)
       let s = (ShapeId 0, sphere)
-      map t (s `intersect` r) `shouldApproxBe` [- 1, 1]
+      map t (r `intersect` s) `shouldApproxBe` [- 1, 1]
 
     it "can intersect when sphere is behind a ray" $ do
       let r = Ray (point 0 0 5) (vector 0 0 1)
       let s = (ShapeId 0, sphere)
-      map t (s `intersect` r) `shouldApproxBe` [ -6, -4 ]
+      map t (r `intersect` s) `shouldApproxBe` [ -6, -4 ]
 
     it "calculates hit when all intersections have a positive t" $ do
       let shapeId = ShapeId 0
@@ -91,10 +91,10 @@ spec = do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
       let s = sphere { sphereTransform = scaling 2 2 2 }
-      map t ((shapeId, s) `intersect` r) `shouldApproxBe` [ 3, 7 ]
+      map t (r `intersect` (shapeId, s)) `shouldApproxBe` [ 3, 7 ]
 
     it "intersects a translated sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
       let s = sphere { sphereTransform = translation 5 0 0 }
-      map t ((shapeId, s) `intersect` r) `shouldApproxBe` []
+      map t (r `intersect` (shapeId, s)) `shouldApproxBe` []

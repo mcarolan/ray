@@ -12,7 +12,7 @@ import Lighting
 
 colourAt :: Double -> Double -> Ray -> (ShapeId, Sphere) -> PointLight -> Colour
 colourAt x y ray shape light =
-  case hit (shape `intersect` ray) of
+  case hit (ray `intersect` shape) of
     Just h ->
       let
         p = position ray (t h)

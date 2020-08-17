@@ -17,22 +17,38 @@ spec = do
   describe "World" $ do
     it "has a default" $ do
       let world = defaultWorld
-      lights world `shouldApproxBe` [ PointLight white (point (-10) (-10) (-10)) ]
+      lights world `shouldApproxBe` [ PointLight white (point (-10) 10 (-10)) ]
 
       let material = defaultMaterial {
-        materialColour = Colour 0.8 1.0 0.6,
-        materialDiffuse = 0.7,
-        materialSpecular = 0.2
-      }
+                  materialColour = Colour 0.8 1.0 0.6,
+                  materialDiffuse = 0.7,
+                  materialSpecular = 0.2
+                }
 
       let s1 = sphere {
         sphereMaterial = material
       }
 
-      let s2 = sphere { 
+      let s2 = sphere {
         sphereTransform = scaling 0.5 0.5 0.5
       }
 
       length (spheres world) `shouldBe` 2
-      head (spheres world) `shouldApproxBe` (ShapeId 0, s1)
-      tail (spheres world) `shouldApproxBe` [(ShapeId 1, s2)]
+
+      let f = head (spheres world)
+      let s = head (tail (spheres world))
+
+      fst f `shouldBe` ShapeId 0
+      snd f `shouldApproxBe` s1
+
+      fst s `shouldBe` ShapeId 1
+      snd s `shouldApproxBe` s2
+
+    it "intersects rays" $ do
+      let world = defaultWorld
+      let r = Ray (point 0 0 (-5)) (vector 0 0 1)
+      let intersections = intersectWorld world r
+
+      length intersections `shouldBe` 4
+
+      map t intersections `shouldMatchList` [4, 4.5, 5.5, 6]
