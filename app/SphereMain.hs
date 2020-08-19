@@ -19,7 +19,7 @@ colourAt x y ray shape light =
         norm = normalAt (snd shape) p
         eye = neg (direction ray)
       in
-        lighting (sphereMaterial (snd shape)) light p eye norm
+        lighting (sphereMaterial (snd shape)) light p eye norm False
     Nothing -> black
 
 main :: IO ()

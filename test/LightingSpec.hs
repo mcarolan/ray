@@ -14,10 +14,19 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 (-10))
-      let result = lighting m light position eye norm
+      let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 1.9 1.9 1.9
 
+    it "lighting with the surface in the shadow" $ do
+          let m = defaultMaterial
+          let position = point 0 0 0
+          let eye = vector 0 0 (-1)
+          let norm = vector 0 0 (-1)
+          let light = PointLight white (point 0 0 (-10))
+          let result = lighting m light position eye norm True
+
+          result `shouldApproxBe` Colour 0.1 0.1 0.1
 
     it "lighting with eye between the light and the surface, eye offset 45 degrees" $ do
       let m = defaultMaterial
@@ -25,7 +34,7 @@ module LightingSpec where
       let eye = vector 0 (sqrt 2 / 2) (-(sqrt 2 / 2))
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 (-10))
-      let result = lighting m light position eye norm
+      let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 1.0 1.0 1.0
 
@@ -35,7 +44,7 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 10 (-10))
-      let result = lighting m light position eye norm
+      let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 0.7364 0.7364 0.7364
 
@@ -46,7 +55,7 @@ module LightingSpec where
       let eye = vector 0 (-(sqrt 2 / 2)) (-(sqrt 2 / 2))
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 10 (-10))
-      let result = lighting m light position eye norm
+      let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 1.6364 1.6364 1.6364
 
@@ -57,6 +66,6 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 10)
-      let result = lighting m light position eye norm
+      let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 0.1 0.1 0.1

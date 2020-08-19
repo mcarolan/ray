@@ -104,3 +104,40 @@ spec = do
     let newWorld = addSphere inner (addSphere outer (world { spheres = [] }))
 
     colourAt newWorld r `shouldApproxBe` materialColour (sphereMaterial innerSphere)
+
+  it "is not a shadow when nothing is collinear with the point or light" $ do
+    let w = defaultWorld
+    let p = point 0 10 0
+
+    isShadowed w p `shouldBe` False
+
+  it "is a shadow hwen there is an object between the point and the light" $ do
+    let w = defaultWorld
+    let p = point 10 (-10) 10
+    isShadowed w p `shouldBe` True
+
+  it "should not be in shadow when an object is behind the light" $ do
+    let w = defaultWorld
+    let p = point (-20) 20 (-20)
+    isShadowed w p `shouldBe` False
+
+  it "should not be in shadow when nothing is between the light and the point" $ do
+    let w = defaultWorld
+    let p = point (-2) (-2) (-2)
+    isShadowed w p `shouldBe` False
+
+  it "should shade correctly in a shadow" $ do
+    let light = PointLight white (point 0 0 (-10))
+    let s1 = sphere
+    let s2 = sphere {
+      sphereTransform = translation 0 0 10
+    }
+
+    let w = addSphere s2 (addSphere s1 (addLight light emptyWorld))
+    let r = Ray (point 0 0 5) (vector 0 0 1)
+    let i = Intersection (head (tail (spheres w))) 4
+    let comps = prepareComputations i r
+
+    let c = shadeHit w comps
+
+    c `shouldApproxBe` Colour 0.1 0.1 0.1

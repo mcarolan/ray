@@ -125,3 +125,16 @@ spec = do
       compsEyeV comps `shouldApproxBe` vector 0 0 (-1)
       inside comps `shouldBe` True
       compsNormalV comps `shouldApproxBe` vector 0 0 (-1)
+
+  it "offsets the hit" $ do
+    let r = Ray (point 0 0 (-5)) (vector 0 0 1)
+    let s = sphere {
+      sphereTransform = translation 0 0 1
+    }
+
+    let i = Intersection (ShapeId 0, s) 5
+    let comps = prepareComputations i r
+
+    z (overPoint comps) `shouldSatisfy` \n -> n < ((-epsilon) / 2)
+    z (compsPoint comps) `shouldSatisfy` \n -> n > z (overPoint comps)
+

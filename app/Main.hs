@@ -16,7 +16,7 @@ import Lighting
 main :: IO ()
 main =
   do
-    _ <- writeFile "scene.ppm" ppm
+    _ <- writeFile "scene-shadows.ppm" ppm
     return ()
   where
     floorMaterial = defaultMaterial {

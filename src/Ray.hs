@@ -60,7 +60,7 @@ intersect ray sphere
   t1 = Intersection sphere ((-b - sqrt discriminant) / (2 * a))
   t2 = Intersection sphere ((-b + sqrt discriminant) / (2 * a))
 
-data Computations = Computations { object :: (ShapeId, Sphere), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool }
+data Computations = Computations { object :: (ShapeId, Sphere), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool, overPoint :: Quad }
 
 prepareComputations :: Intersection -> Ray -> Computations
 prepareComputations int ray =
@@ -70,7 +70,8 @@ prepareComputations int ray =
     compsPoint = p,
     compsEyeV = eyeV,
     compsNormalV = computedNormalV,
-    inside = isInside
+    inside = isInside,
+    overPoint = p `add` (computedNormalV `scalarmul` epsilon)
   }
   where
     obj = with int

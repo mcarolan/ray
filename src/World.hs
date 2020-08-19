@@ -2,7 +2,7 @@ module World where
   import Lighting
   import Ray
   import Quad
-  import Colour
+  import Colour hiding (minus)
   import Transforms
   import Data.List(sortBy)
 
@@ -51,15 +51,33 @@ module World where
     where
       result = spheres w >>= intersect r
 
+  isShadowed :: World -> Quad -> Bool
+  isShadowed w p =
+    case hOpt of
+      Just h ->
+        t h < distance
+      Nothing ->
+        False
+    where
+      v = lightPosition (head (lights w)) `minus` p
+      distance = magnitude v
+      direction = normalize v
+
+      r = Ray p direction
+      intersections = intersectWorld w r
+      hOpt = hit intersections
+
+
   shadeHit :: World -> Computations -> Colour
   shadeHit w comps =
-    lighting mat light p e n
+    lighting mat light p e n shadowed
      where
       mat = sphereMaterial (snd (object comps))
       light = head (lights w)
       p = compsPoint comps
       e = compsEyeV comps
       n = compsNormalV comps
+      shadowed = isShadowed w (overPoint comps)
 
   colourAt :: World -> Ray -> Colour
   colourAt w r =
