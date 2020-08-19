@@ -6,7 +6,7 @@ module World where
   import Transforms
   import Data.List(sortBy)
 
-  data World = World { lights :: [PointLight], spheres :: [(ShapeId, Sphere)]} deriving (Show)
+  data World = World { lights :: [PointLight], shapes :: [(ShapeId, Shape)]} deriving (Show)
 
   emptyWorld :: World
   emptyWorld = World [] []
@@ -23,22 +23,22 @@ module World where
       lights = [l]
     }
 
-  addSphere :: Sphere -> World -> World
-  addSphere s w = 
+  addShape :: Shape -> World -> World
+  addShape s w = 
     w {
-      spheres = current ++ [(nextId, s)]
+      shapes = current ++ [(nextId, s)]
     }
     where
-      current = spheres w
+      current = shapes w
       nextId = ShapeId (length current)
 
   defaultWorld :: World
   defaultWorld =
-    addSphere s2 (addSphere s1 (addLight light emptyWorld))
+    addShape s2 (addShape s1 (addLight light emptyWorld))
     where
       light = PointLight white (point (-10) 10 (-10))
-      s1 = sphere { sphereMaterial = material }
-      s2 = sphere { sphereTransform = scaling 0.5 0.5 0.5 }
+      s1 = sphere { shapeMaterial = material }
+      s2 = sphere { shapeTransform = scaling 0.5 0.5 0.5 }
       material = defaultMaterial {
               materialColour = Colour 0.8 1.0 0.6,
               materialDiffuse = 0.7,
@@ -49,7 +49,7 @@ module World where
   intersectWorld w r =
     sortBy (\a b -> t a `compare` t b) result
     where
-      result = spheres w >>= intersect r
+      result = shapes w >>= intersect r
 
   isShadowed :: World -> Quad -> Bool
   isShadowed w p =
@@ -72,7 +72,7 @@ module World where
   shadeHit w comps =
     lighting mat light p e n shadowed
      where
-      mat = sphereMaterial (snd (object comps))
+      mat = shapeMaterial (snd (object comps))
       light = head (lights w)
       p = compsPoint comps
       e = compsEyeV comps

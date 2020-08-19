@@ -2,11 +2,11 @@ module World where
   import Lighting
   import Ray
   import Quad
-  import Colour
+  import Colour hiding (minus)
   import Transforms
-  import Data.List
+  import Data.List(sortBy)
 
-  data World = World { lights :: [PointLight], spheres :: [(ShapeId, Sphere)]} deriving (Show)
+  data World = World { lights :: [PointLight], shapes :: [(ShapeId, Shape)]} deriving (Show)
 
   emptyWorld :: World
   emptyWorld = World [] []
@@ -17,22 +17,28 @@ module World where
       lights = lights w ++ [l]
     }
 
-  addSphere :: Sphere -> World -> World
-  addSphere s w = 
+  setLight :: PointLight -> World -> World
+  setLight l w =
     w {
-      spheres = current ++ [(nextId, s)]
+      lights = [l]
+    }
+
+  addShape :: Shape -> World -> World
+  addShape s w = 
+    w {
+      shapes = current ++ [(nextId, s)]
     }
     where
-      current = spheres w
+      current = shapes w
       nextId = ShapeId (length current)
 
   defaultWorld :: World
   defaultWorld =
-    addSphere s2 (addSphere s1 (addLight light emptyWorld))
+    addShape s2 (addShape s1 (addLight light emptyWorld))
     where
       light = PointLight white (point (-10) 10 (-10))
-      s1 = sphere { sphereMaterial = material }
-      s2 = sphere { sphereTransform = scaling 0.5 0.5 0.5 }
+      s1 = sphere { shapeMaterial = material }
+      s2 = sphere { shapeTransform = scaling 0.5 0.5 0.5 }
       material = defaultMaterial {
               materialColour = Colour 0.8 1.0 0.6,
               materialDiffuse = 0.7,
@@ -41,6 +47,45 @@ module World where
 
   intersectWorld :: World -> Ray -> [Intersection]
   intersectWorld w r =
-    sortBy (\(a,b) -> t a `compare` t b ) result
+    sortBy (\a b -> t a `compare` t b) result
     where
-      result = spheres w >>= intersect r
+      result = shapes w >>= intersect r
+
+  isShadowed :: World -> Quad -> Bool
+  isShadowed w p =
+    case hOpt of
+      Just h ->
+        t h < distance
+      Nothing ->
+        False
+    where
+      v = lightPosition (head (lights w)) `minus` p
+      distance = magnitude v
+      direction = normalize v
+
+      r = Ray p direction
+      intersections = intersectWorld w r
+      hOpt = hit intersections
+
+
+  shadeHit :: World -> Computations -> Colour
+  shadeHit w comps =
+    lighting mat light p e n shadowed
+     where
+      mat = shapeMaterial (snd (object comps))
+      light = head (lights w)
+      p = compsPoint comps
+      e = compsEyeV comps
+      n = compsNormalV comps
+      shadowed = isShadowed w (overPoint comps)
+
+  colourAt :: World -> Ray -> Colour
+  colourAt w r =
+    case hitOpt of
+      Just h ->
+        shadeHit w (prepareComputations h r)
+      Nothing ->
+        black
+    where
+      intersections = intersectWorld w r
+      hitOpt = hit intersections

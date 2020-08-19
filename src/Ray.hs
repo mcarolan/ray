@@ -12,19 +12,24 @@ position :: Ray -> Double -> Quad
 position r t =
   (direction r `scalarmul` t) `add` origin r
 
-data Sphere = Sphere { sphereTransform :: Matrix, sphereMaterial :: Material } deriving (Show)
+data Shape =
+  Sphere { shapeTransform :: Matrix, shapeMaterial :: Material }
+  | Plane { shapeTransform :: Matrix, shapeMaterial :: Material } deriving (Show)
       
-instance ApproxEqual Sphere where
+instance ApproxEqual Shape where
   approxEqual a b =
-    sphereTransform a `approxEqual` sphereTransform b &&
-    sphereMaterial a `approxEqual` sphereMaterial b
+    shapeTransform a `approxEqual` shapeTransform b &&
+    shapeMaterial a `approxEqual` shapeMaterial b
 
-sphere :: Sphere
+plane :: Shape
+plane = Plane identityM defaultMaterial
+
+sphere :: Shape
 sphere = Sphere identityM defaultMaterial
 
 newtype ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
 
-data Intersection = Intersection { with :: (ShapeId, Sphere), t :: Double } deriving Show
+data Intersection = Intersection { with :: (ShapeId, Shape), t :: Double } deriving Show
 
 instance ApproxEqual Intersection where
     approxEqual x y =
@@ -43,24 +48,35 @@ instance Ord Intersection where
     | t x `approxEqual` t y = EQ
     | otherwise = compare (t x) (t y)
 
-intersect :: Ray -> (ShapeId, Sphere) -> [Intersection]
-intersect ray sphere
-  | discriminant < 0 = []
-  | otherwise = [t1, t2]
+localIntersectAt :: (ShapeId, Shape) -> Ray -> [Intersection]
+localIntersectAt shape@(_, Sphere _ _) localRay
+    | discriminant < 0 = []
+    | otherwise = [t1, t2]
+    where
+    sphereToRay = origin localRay `minus` point 0 0 0
+
+    a = direction localRay `dot` direction localRay
+    b = 2 * (direction localRay `dot` sphereToRay)
+    c = (sphereToRay `dot` sphereToRay) - 1
+
+    discriminant = (b *  b) - 4 * a * c
+
+    t1 = Intersection shape ((-b - sqrt discriminant) / (2 * a))
+    t2 = Intersection shape ((-b + sqrt discriminant) / (2 * a))
+
+localIntersectAt shape@(_, Plane _ _) localRay
+  | abs (y (direction localRay)) < epsilon = []
+  | otherwise = [ Intersection shape t ]
   where
-  ray' = ray `transform` inverse (sphereTransform (snd sphere))
-  sphereToRay = origin ray' `minus` point 0 0 0
+    t = -y (origin localRay) / y (direction localRay)
 
-  a = direction ray' `dot` direction ray'
-  b = 2 * (direction ray' `dot` sphereToRay)
-  c = (sphereToRay `dot` sphereToRay) - 1
+intersect :: Ray -> (ShapeId, Shape) -> [Intersection]
+intersect ray shape =
+  localIntersectAt shape localRay
+  where
+  localRay = ray `transform` inverse (shapeTransform (snd shape))
 
-  discriminant = (b *  b) - 4 * a * c
-
-  t1 = Intersection sphere ((-b - sqrt discriminant) / (2 * a))
-  t2 = Intersection sphere ((-b + sqrt discriminant) / (2 * a))
-
-data Computations = Computations { object :: (ShapeId, Sphere), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool, overPoint :: Quad }
+data Computations = Computations { object :: (ShapeId, Shape), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool, overPoint :: Quad }
 
 prepareComputations :: Intersection -> Ray -> Computations
 prepareComputations int ray =
@@ -93,12 +109,20 @@ transform :: Ray -> Matrix -> Ray
 transform r m =
   Ray (m `mul` origin r) (m `mul` direction r)
 
-normalAt :: Sphere -> Quad -> Quad
+localNormalAt :: Shape -> Quad -> Quad
+localNormalAt (Sphere _ _) localPoint =
+  localPoint `minus` point 0 0 0
+
+localNormalAt (Plane _ _) _ =
+  vector 0 1 0
+
+normalAt :: Shape -> Quad -> Quad
 normalAt s worldPoint =
   normalize worldNormal'
   where
-    inverseTransform = inverse (sphereTransform s)
-    objectPoint = inverseTransform `mul` worldPoint
-    objectNormal = objectPoint `minus` point 0 0 0
-    worldNormal = transpose inverseTransform `mul` objectNormal
+    inverseTransform = inverse (shapeTransform s)
+
+    localPoint = inverseTransform `mul` worldPoint
+    localNormal = localNormalAt s localPoint
+    worldNormal = transpose inverseTransform `mul` localNormal
     worldNormal' = vector (x worldNormal) (y worldNormal) (z worldNormal)

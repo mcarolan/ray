@@ -1,4 +1,4 @@
-module Main where
+module SceneMain where
 
 import Quad
 import Canvas

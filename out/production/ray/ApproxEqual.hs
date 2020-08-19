@@ -6,11 +6,13 @@ module ApproxEqual
   import Data.Array
   import Data.Maybe
 
+  epsilon = 0.00001
+  
   class ApproxEqual a where
     approxEqual :: a -> a -> Bool
 
   instance ApproxEqual Double where
-    approxEqual a b = ((abs (a - b)) < 0.00001)
+    approxEqual a b = ((abs (a - b)) < epsilon)
 
   instance ApproxEqual Colour where
     approxEqual x y =

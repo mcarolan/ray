@@ -1,6 +1,20 @@
 module Transforms where
 
-  import Quad(Matrix, matrix4)
+  import Quad(Quad, Matrix, matrix4, normalize, minus, cross, x, y, z, mul)
+
+  viewTransform :: Quad -> Quad -> Quad -> Matrix
+  viewTransform from to up =
+    orientation `mul` translation (-(x from)) (-(y from)) (-(z from))
+    where
+      forward = normalize (to `minus` from)
+      upn = normalize up
+      left = forward `cross` upn
+      trueUp = left `cross` forward
+      orientation =
+        matrix4     (x left)        (y left)        (z left)        0
+                    (x trueUp)      (y trueUp)      (z trueUp)      0
+                    (-(x forward))  (-(y forward))  (-(z forward))  0
+                    0               0               0               1
   
   identityM :: Matrix
   identityM =

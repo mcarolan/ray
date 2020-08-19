@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d35f8db4bf9f39ddaa96752c6b283b9bebf9b8f35c5fde2bf73f5be7c1874120
+-- hash: a9350a108ffde87aaa16041cbefaf35556a713e6c3cc9e5242b012b6309e78f1
 
 name:           ray
 version:        0.1.0.0
@@ -54,6 +54,7 @@ executable ray-exe
       CircleMain
       ClockMain
       ProjectileMain
+      SceneMain
       SphereMain
       Paths_ray
   hs-source-dirs:
@@ -74,6 +75,7 @@ test-suite ray-test
       CanvasSpec
       LightingSpec
       MatrixSpec
+      PlaneSpec
       QuadSpec
       RaySpec
       SphereSpec

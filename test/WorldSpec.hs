@@ -26,17 +26,17 @@ spec = do
                 }
 
       let s1 = sphere {
-        sphereMaterial = material
+        shapeMaterial = material
       }
 
       let s2 = sphere {
-        sphereTransform = scaling 0.5 0.5 0.5
+        shapeTransform = scaling 0.5 0.5 0.5
       }
 
-      length (spheres world) `shouldBe` 2
+      length (shapes world) `shouldBe` 2
 
-      let f = head (spheres world)
-      let s = head (tail (spheres world))
+      let f = head (shapes world)
+      let s = head (tail (shapes world))
 
       fst f `shouldBe` ShapeId 0
       snd f `shouldApproxBe` s1
@@ -56,7 +56,7 @@ spec = do
     it "shades an intersection" $ do
       let world = defaultWorld
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
-      let shape = head (spheres world)
+      let shape = head (shapes world)
       let intersection = Intersection shape 4
       let comps = prepareComputations intersection r
       let c = shadeHit world comps
@@ -66,7 +66,7 @@ spec = do
     it "shades an intersection from the inside" $ do
       let world = setLight (PointLight white (point 0 0.25 0))  defaultWorld
       let r = Ray (point 0 0 0) (vector 0 0 1)
-      let shape = head (tail (spheres world))
+      let shape = head (tail (shapes world))
       let intersection = Intersection shape 0.5
       let comps = prepareComputations intersection r
       let c = shadeHit world comps
@@ -85,25 +85,25 @@ spec = do
 
   it "computes the colour with an intersection behind the ray" $ do
     let world = defaultWorld
-    let outerSphere = snd (head (spheres world))
+    let outerSphere = snd (head (shapes world))
     let outer = outerSphere {
-      sphereMaterial = (sphereMaterial outerSphere) {
+      shapeMaterial = (shapeMaterial outerSphere) {
         materialAmbient = 1
       }
     }
 
-    let innerSphere = snd (head (tail (spheres world)))
+    let innerSphere = snd (head (tail (shapes world)))
     let inner = innerSphere {
-      sphereMaterial = (sphereMaterial innerSphere) {
+      shapeMaterial = (shapeMaterial innerSphere) {
         materialAmbient = 1
       }
     }
 
     let r = Ray (point 0 0 0.75) (vector 0 0 (-1))
 
-    let newWorld = addSphere inner (addSphere outer (world { spheres = [] }))
+    let newWorld = addShape inner (addShape outer (world { shapes = [] }))
 
-    colourAt newWorld r `shouldApproxBe` materialColour (sphereMaterial innerSphere)
+    colourAt newWorld r `shouldApproxBe` materialColour (shapeMaterial innerSphere)
 
   it "is not a shadow when nothing is collinear with the point or light" $ do
     let w = defaultWorld
@@ -130,12 +130,12 @@ spec = do
     let light = PointLight white (point 0 0 (-10))
     let s1 = sphere
     let s2 = sphere {
-      sphereTransform = translation 0 0 10
+      shapeTransform = translation 0 0 10
     }
 
-    let w = addSphere s2 (addSphere s1 (addLight light emptyWorld))
+    let w = addShape s2 (addShape s1 (addLight light emptyWorld))
     let r = Ray (point 0 0 5) (vector 0 0 1)
-    let i = Intersection (head (tail (spheres w))) 4
+    let i = Intersection (head (tail (shapes w))) 4
     let comps = prepareComputations i r
 
     let c = shadeHit w comps

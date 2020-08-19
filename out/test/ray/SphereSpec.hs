@@ -23,12 +23,12 @@ spec = do
     n `shouldApproxBe` normalize n
   it "computes the normal on a translated sphere" $ do
     let shapeId = ShapeId 0
-    let s = sphere { sphereTransform = translation 0 1 0 }
+    let s = sphere { shapeTransform = translation 0 1 0 }
     let n = normalAt s (point 0 1.70711 (-0.70711))
     n `shouldApproxBe` vector 0 0.70711 (-0.70711)
   it "computes the normal on a transformed sphere" $ do
     let shapeId = ShapeId 0
     let m = scaling 1 0.5 1 `mul` rotateZ (pi / 5.0)
-    let s = sphere { sphereTransform = m }
+    let s = sphere { shapeTransform = m }
     let n = normalAt s (point 0 (sqrt 2 / 2) (-(sqrt 2 / 2)))
     n `shouldApproxBe` vector 0 0.97014 (-0.24254)

@@ -23,7 +23,7 @@ spec = do
       let shapeId = ShapeId 0
       let s = (shapeId, sphere)
       map t (r `intersect` s) `shouldApproxBe` [ 4.0, 6.0 ]
-      map with (r `intersect` s) `shouldBe` [ shapeId, shapeId ]
+      map (fst . with) (r `intersect` s) `shouldBe` [ shapeId, shapeId ]
 
     it "can calculate intersection of a sphere at a tangent" $ do
       let r = Ray (point 0 1 (-5)) (vector 0 0 1)
@@ -46,29 +46,29 @@ spec = do
       map t (r `intersect` s) `shouldApproxBe` [ -6, -4 ]
 
     it "calculates hit when all intersections have a positive t" $ do
-      let shapeId = ShapeId 0
-      let i1 = Intersection shapeId 1
-      let i2 = Intersection shapeId 2
+      let shape = (ShapeId 0, sphere)
+      let i1 = Intersection shape 1
+      let i2 = Intersection shape 2
       hit [i2, i1] `shouldApproxBe` Just i1
 
     it "calculates hit when some intersections have a negative t" $ do
-      let shapeId = ShapeId 0
-      let i1 = Intersection shapeId (-1)
-      let i2 = Intersection shapeId 1
+      let shape = (ShapeId 0, sphere)
+      let i1 = Intersection shape (-1)
+      let i2 = Intersection shape 1
       hit [i2, i1] `shouldApproxBe` Just i2
 
     it "calculates hit when all intersections have a negative t" $ do
-      let shapeId = ShapeId 0
-      let i1 = Intersection shapeId (-2)
-      let i2 = Intersection shapeId (-1)
+      let shape = (ShapeId 0, sphere)
+      let i1 = Intersection shape (-2)
+      let i2 = Intersection shape (-1)
       hit [i2, i1] `shouldApproxBe` Nothing
 
     it "always takes the lowest nonnegative intersection" $ do
-      let shapeId = ShapeId 0
-      let i1 = Intersection shapeId 5
-      let i2 = Intersection shapeId 7
-      let i3 = Intersection shapeId (-3)
-      let i4 = Intersection shapeId 2
+      let shape = (ShapeId 0, sphere)
+      let i1 = Intersection shape 5
+      let i2 = Intersection shape 7
+      let i3 = Intersection shape (-3)
+      let i4 = Intersection shape 2
       hit [i1, i2, i3, i4] `shouldApproxBe` Just i4
 
     it "allows translation of a ray" $ do
@@ -90,11 +90,51 @@ spec = do
     it "intersects a scaled sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = sphere { sphereTransform = scaling 2 2 2 }
+      let s = sphere { shapeTransform = scaling 2 2 2 }
       map t (r `intersect` (shapeId, s)) `shouldApproxBe` [ 3, 7 ]
 
     it "intersects a translated sphere with a ray" $ do
       let r = Ray (point 0 0 (-5)) (vector 0 0 1)
       let shapeId = ShapeId 0
-      let s = sphere { sphereTransform = translation 5 0 0 }
+      let s = sphere { shapeTransform = translation 5 0 0 }
       map t (r `intersect` (shapeId, s)) `shouldApproxBe` []
+
+    it "precomputes the state of intersections" $ do
+      let r = Ray (point 0 0 (-5)) (vector 0 0 1)
+      let shapeId = ShapeId 1
+      let intersection = Intersection (shapeId, sphere) 4
+
+      let comps = prepareComputations intersection r
+
+      fst (object comps) `shouldBe` shapeId
+      snd (object comps) `shouldApproxBe` sphere
+      compsT comps `shouldApproxBe` 4
+      compsPoint comps `shouldApproxBe` point 0 0 (-1)
+      compsEyeV comps `shouldApproxBe` vector 0 0 (-1)
+      compsNormalV comps `shouldApproxBe` vector 0 0 (-1)
+      inside comps `shouldBe` False
+
+    it "precompute when the intersection is inside" $ do
+      let r = Ray (point 0 0 0) (vector 0 0 1)
+      let shapeId = ShapeId 1
+      let intersection = Intersection (shapeId, sphere) 1
+
+      let comps = prepareComputations intersection r
+
+      compsPoint comps `shouldApproxBe` point 0 0 1
+      compsEyeV comps `shouldApproxBe` vector 0 0 (-1)
+      inside comps `shouldBe` True
+      compsNormalV comps `shouldApproxBe` vector 0 0 (-1)
+
+  it "offsets the hit" $ do
+    let r = Ray (point 0 0 (-5)) (vector 0 0 1)
+    let s = sphere {
+      shapeTransform = translation 0 0 1
+    }
+
+    let i = Intersection (ShapeId 0, s) 5
+    let comps = prepareComputations i r
+
+    z (overPoint comps) `shouldSatisfy` \n -> n < ((-epsilon) / 2)
+    z (compsPoint comps) `shouldSatisfy` \n -> n > z (overPoint comps)
+

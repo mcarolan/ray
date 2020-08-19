@@ -26,9 +26,10 @@ module Lighting where
   defaultMaterial :: Material
   defaultMaterial = Material white 0.1 0.9 0.9 200.0
 
-  lighting :: Material -> PointLight -> Quad -> Quad -> Quad -> Colour
-  lighting m light pos eye norm =
-    ambient `addColour` diffuse `addColour` specular
+  lighting :: Material -> PointLight -> Quad -> Quad -> Quad -> Bool -> Colour
+  lighting m light pos eye norm inShadow
+    | inShadow = ambient
+    | otherwise = ambient `addColour` diffuse `addColour` specular
     where
       li = lightIntensity light
 
