@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a9350a108ffde87aaa16041cbefaf35556a713e6c3cc9e5242b012b6309e78f1
+-- hash: ce0655530d6c12ad491285f43517f41ab2ccb5b0d561b84b0dbf4f9aaf1b1d78
 
 name:           ray
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Colour
       Lib
       Lighting
+      Pattern
       Quad
       Ray
       Transforms
@@ -53,6 +54,7 @@ executable ray-exe
   other-modules:
       CircleMain
       ClockMain
+      PlaneMain
       ProjectileMain
       SceneMain
       SphereMain
@@ -75,6 +77,7 @@ test-suite ray-test
       CanvasSpec
       LightingSpec
       MatrixSpec
+      PatternSpec
       PlaneSpec
       QuadSpec
       RaySpec

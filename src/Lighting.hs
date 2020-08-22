@@ -3,6 +3,7 @@ module Lighting where
   import Quad
   import Colour(Colour, addColour, mulScalar, mulColour, black, white)
   import ApproxEqual
+  import Ray
 
   data PointLight = PointLight { lightIntensity :: Colour, lightPosition :: Quad } deriving (Show)
 
@@ -12,28 +13,34 @@ module Lighting where
         lightIntensity a `approxEqual` lightIntensity b &&
           lightPosition a `approxEqual` lightPosition b
 
-  data Material = Material { materialColour :: Colour, materialAmbient, materialDiffuse, materialSpecular, materialShininess :: Double } deriving (Show)
+  data Material = Material { 
+  materialAmbient, 
+  materialDiffuse, 
+  materialSpecular, 
+  materialShininess :: Double,
+  materialPattern :: Pattern } deriving (Show)
 
   instance ApproxEqual Material
     where
       approxEqual a b =
-        materialColour a `approxEqual` materialColour b &&
+        materialPattern a `approxEqual` materialPattern b &&
         materialAmbient a `approxEqual` materialAmbient b &&
         materialDiffuse a `approxEqual` materialDiffuse b &&
         materialSpecular a `approxEqual` materialSpecular b &&
         materialShininess a `approxEqual` materialShininess b
 
   defaultMaterial :: Material
-  defaultMaterial = Material white 0.1 0.9 0.9 200.0
+  defaultMaterial = Material 0.1 0.9 0.9 200.0 (Constant white)
 
-  lighting :: Material -> PointLight -> Quad -> Quad -> Quad -> Bool -> Colour
-  lighting m light pos eye norm inShadow
+  lighting :: Material -> Shape -> PointLight -> Quad -> Quad -> Quad -> Bool -> Colour
+  lighting m shape light pos eye norm inShadow
     | inShadow = ambient
     | otherwise = ambient `addColour` diffuse `addColour` specular
     where
       li = lightIntensity light
 
-      effectiveColour = materialColour m `mulColour` li
+      colour = patternColourForObject (materialPattern m) shape pos
+      effectiveColour = colour `mulColour` li
 
       ambient = effectiveColour `mulScalar` materialAmbient m
 

@@ -10,6 +10,7 @@ import Quad
 import Colour
 import Ray
 import Transforms
+import Pattern
 
 spec :: Spec
 spec = do
@@ -20,7 +21,7 @@ spec = do
       lights world `shouldApproxBe` [ PointLight white (point (-10) 10 (-10)) ]
 
       let material = defaultMaterial {
-                  materialColour = Colour 0.8 1.0 0.6,
+                  materialPattern = Constant (Colour 0.8 1.0 0.6),
                   materialDiffuse = 0.7,
                   materialSpecular = 0.2
                 }
@@ -103,7 +104,7 @@ spec = do
 
     let newWorld = addShape inner (addShape outer (world { shapes = [] }))
 
-    colourAt newWorld r `shouldApproxBe` materialColour (shapeMaterial innerSphere)
+    colourAt newWorld r `shouldApproxBe` white
 
   it "is not a shadow when nothing is collinear with the point or light" $ do
     let w = defaultWorld

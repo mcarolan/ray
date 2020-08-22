@@ -1,4 +1,4 @@
-module Main where
+module PlaneMain where
 
 import Quad
 import Canvas
@@ -16,7 +16,7 @@ import Pattern
 main :: IO ()
 main =
   do
-    _ <- writeFile "patterns.ppm" ppm
+    _ <- writeFile "plane.ppm" ppm
     return ()
   where
     light = PointLight white (point (-10) 10 (-10))
@@ -24,7 +24,7 @@ main =
 
     s = sphere {
       shapeMaterial = defaultMaterial {
-        materialPattern = stripePattern white black
+        materialPattern = Constant red
       },
       shapeTransform = translation 0 1.5 0
     }

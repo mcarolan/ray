@@ -5,6 +5,7 @@ module LightingSpec where
   import TestUtil
   import Quad
   import Colour
+  import Pattern
 
   spec :: Spec
   spec = do
@@ -69,3 +70,19 @@ module LightingSpec where
       let result = lighting m light position eye norm False
 
       result `shouldApproxBe` Colour 0.1 0.1 0.1
+
+    it "lighting with a pattern applied" $ do
+      let m = defaultMaterial {
+        materialPattern = stripePattern white black,
+        materialAmbient = 1,
+        materialSpecular = 0,
+        materialDiffuse = 0
+      }
+      let eye = vector 0 0 (-1)
+      let norm = vector 0 0 (-1)
+      let light = PointLight white (point 0 0 (-10))
+      let c1 = lighting m light (point 0.9 0 0) eye norm False
+      let c2 = lighting m light (point 1.1 0 0) eye norm False
+
+      c1 `shouldApproxBe` white
+      c2 `shouldApproxBe` black

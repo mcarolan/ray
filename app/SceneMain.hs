@@ -11,6 +11,7 @@ import Transforms
 import World
 import Camera
 import Lighting
+import Pattern
 
 main :: IO ()
 main =
@@ -19,7 +20,7 @@ main =
     return ()
   where
     floorMaterial = defaultMaterial {
-      materialColour = Colour 1 0.9 0.9,
+      materialPattern = Constant (Colour 1 0.9 0.9),
       materialSpecular = 0
     }
     floor = sphere {
@@ -47,7 +48,7 @@ main =
       shapeTransform = translation (-0.5) 1 0.5 `mul`
                         shearing 1 0 0 0 0 0,
       shapeMaterial = defaultMaterial {
-        materialColour = Colour 0.1 1 0.5,
+        materialPattern = Constant (Colour 0.1 1 0.5),
         materialDiffuse = 0.7,
         materialSpecular = 0.3
       }
@@ -57,7 +58,7 @@ main =
       shapeTransform = translation 1.5 0.5 (-0.5) `mul`
                         scaling 0.5 0.5 0.5,
       shapeMaterial = defaultMaterial {
-        materialColour = Colour 0.5 1 0.1,
+        materialPattern = Constant (Colour 0.5 1 0.1),
         materialDiffuse = 0.7,
         materialSpecular = 0.3
       }
@@ -67,7 +68,7 @@ main =
       shapeTransform = translation (-1.5) 0.33 (-0.75) `mul`
                         scaling 0.33 0.33 0.33,
       shapeMaterial = defaultMaterial {
-        materialColour = Colour 1 0.8 0.1,
+        materialPattern = Constant (Colour 1 0.8 0.1),
         materialDiffuse = 0.7,
         materialSpecular = 0.3
       }

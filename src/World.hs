@@ -5,6 +5,7 @@ module World where
   import Colour hiding (minus)
   import Transforms
   import Data.List(sortBy)
+  import Pattern
 
   data World = World { lights :: [PointLight], shapes :: [(ShapeId, Shape)]} deriving (Show)
 
@@ -40,7 +41,7 @@ module World where
       s1 = sphere { shapeMaterial = material }
       s2 = sphere { shapeTransform = scaling 0.5 0.5 0.5 }
       material = defaultMaterial {
-              materialColour = Colour 0.8 1.0 0.6,
+              materialPattern = Constant (Colour 0.8 1.0 0.6),
               materialDiffuse = 0.7,
               materialSpecular = 0.2
             }
@@ -70,9 +71,10 @@ module World where
 
   shadeHit :: World -> Computations -> Colour
   shadeHit w comps =
-    lighting mat light p e n shadowed
+    lighting mat shape light p e n shadowed
      where
-      mat = shapeMaterial (snd (object comps))
+      shape = snd (object comps)
+      mat = shapeMaterial shape
       light = head (lights w)
       p = compsPoint comps
       e = compsEyeV comps
