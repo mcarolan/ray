@@ -23,6 +23,9 @@ module Models where
   green = Colour 0 1 0
 
   data Pattern = StripePattern { on, off :: Colour, patternTransform :: Matrix }
+               | GradientPattern { from, to :: Colour, patternTransform :: Matrix }
+               | RingPattern { on, off :: Colour, patternTransform :: Matrix }
+               | CheckerPattern { on, off :: Colour, patternTransform :: Matrix }
                | Constant { c :: Colour } deriving (Show)
 
   data Quad = Quad { x, y, z, w :: Double } deriving (Show)
