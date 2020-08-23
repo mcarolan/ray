@@ -12,6 +12,7 @@ import World
 import Camera
 import Lighting
 import Pattern
+import Models
 
 main :: IO ()
 main =
@@ -24,7 +25,9 @@ main =
 
     s = sphere {
       shapeMaterial = defaultMaterial {
-        materialPattern = stripePattern white black
+        materialPattern = (stripePattern white black) {
+          patternTransform = rotateZ (pi/4) `mul` scaling 0.2 0.2 0.2
+        }
       },
       shapeTransform = translation 0 1.5 0
     }

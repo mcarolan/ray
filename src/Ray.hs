@@ -4,7 +4,7 @@ import Quad
 import ApproxEqual
 import Safe
 import Transforms
-import Lighting
+import Models
 import Colour hiding (minus)
 
 data Ray = Ray { origin, direction :: Quad }

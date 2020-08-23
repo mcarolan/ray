@@ -5,6 +5,7 @@ module CanvasPPMSpec where
   import Test.Hspec
   import TestUtil
   import Colour
+  import Models
 
   spec :: Spec
   spec = do

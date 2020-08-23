@@ -10,6 +10,7 @@ import System.IO
 import Transforms
 import Lighting
 import Pattern
+import Models
 
 colourAt :: Double -> Double -> Ray -> (ShapeId, Shape) -> PointLight -> Colour
 colourAt x y ray shape light =
@@ -20,7 +21,7 @@ colourAt x y ray shape light =
         norm = normalAt (snd shape) p
         eye = neg (direction ray)
       in
-        lighting (shapeMaterial (snd shape)) light p eye norm False
+        lighting (shapeMaterial (snd shape)) (snd shape) light p eye norm False
     Nothing -> black
 
 main :: IO ()

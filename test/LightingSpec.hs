@@ -6,6 +6,10 @@ module LightingSpec where
   import Quad
   import Colour
   import Pattern
+  import Models
+  import ApproxEqual
+  import Ray
+ 
 
   spec :: Spec
   spec = do
@@ -15,7 +19,7 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 (-10))
-      let result = lighting m light position eye norm False
+      let result = lighting m sphere light position eye norm False
 
       result `shouldApproxBe` Colour 1.9 1.9 1.9
 
@@ -25,7 +29,7 @@ module LightingSpec where
           let eye = vector 0 0 (-1)
           let norm = vector 0 0 (-1)
           let light = PointLight white (point 0 0 (-10))
-          let result = lighting m light position eye norm True
+          let result = lighting m sphere light position eye norm True
 
           result `shouldApproxBe` Colour 0.1 0.1 0.1
 
@@ -35,7 +39,7 @@ module LightingSpec where
       let eye = vector 0 (sqrt 2 / 2) (-(sqrt 2 / 2))
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 (-10))
-      let result = lighting m light position eye norm False
+      let result = lighting m sphere light position eye norm False
 
       result `shouldApproxBe` Colour 1.0 1.0 1.0
 
@@ -45,7 +49,7 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 10 (-10))
-      let result = lighting m light position eye norm False
+      let result = lighting m sphere light position eye norm False
 
       result `shouldApproxBe` Colour 0.7364 0.7364 0.7364
 
@@ -56,7 +60,7 @@ module LightingSpec where
       let eye = vector 0 (-(sqrt 2 / 2)) (-(sqrt 2 / 2))
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 10 (-10))
-      let result = lighting m light position eye norm False
+      let result = lighting m sphere light position eye norm False
 
       result `shouldApproxBe` Colour 1.6364 1.6364 1.6364
 
@@ -67,7 +71,7 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 10)
-      let result = lighting m light position eye norm False
+      let result = lighting m sphere light position eye norm False
 
       result `shouldApproxBe` Colour 0.1 0.1 0.1
 
@@ -81,8 +85,8 @@ module LightingSpec where
       let eye = vector 0 0 (-1)
       let norm = vector 0 0 (-1)
       let light = PointLight white (point 0 0 (-10))
-      let c1 = lighting m light (point 0.9 0 0) eye norm False
-      let c2 = lighting m light (point 1.1 0 0) eye norm False
+      let c1 = lighting m sphere light (point 0.9 0 0) eye norm False
+      let c2 = lighting m sphere light (point 1.1 0 0) eye norm False
 
       c1 `shouldApproxBe` white
       c2 `shouldApproxBe` black

@@ -4,8 +4,7 @@
   import Data.Array(Array, array, bounds, (!))
   import Data.List(intercalate)
   import ApproxEqual
-
-  data Quad = Quad { x, y, z, w :: Double } deriving (Show)
+  import Models
 
   instance ApproxEqual Quad where
     approxEqual a b =
@@ -79,8 +78,6 @@
     where x' = ((y a) * (z b)) - ((z a) * (y b))
           y' = ((z a) * (x b)) - ((x a) * (z b))
           z' = ((x a) * (y b)) - ((y a) * (x b))
-
-  newtype Matrix = Matrix { elems :: Array (Int, Int) Double}
   
   class MatrixMultiply a where
     mul :: Matrix -> a -> a
@@ -100,21 +97,6 @@
   instance MatrixMultiply Quad where
     mul a q =
       quadFromMatrix (a `mul` matrixFromQuad q)
-
-  instance Show Matrix where
-    show m =
-      show (rows m) ++ "x" ++ show (columns m) ++ " matrix:\n" ++
-      numbers
-      where
-        rowNumbers r = intercalate "\t|\t" [ show (m `at` (r, c)) | c <- [0..columns m - 1]]
-        allRows = [ rowNumbers r | r <- [0..rows m - 1]]
-        numbers = unlines allRows
-
-  instance ApproxEqual Matrix where
-    approxEqual a b =
-      columns a == columns b &&
-      rows a == rows b &&
-      all (uncurry approxEqual) [ (a `at` (i, j), b `at` (i, j)) | i <- [0..rows a - 1], j <- [0..columns a - 1]]
 
   matrix :: Int -> Int -> [Double] -> Matrix
   matrix rows cols elems
@@ -169,12 +151,6 @@
             g, h, i
            ]
 
-  columns :: Matrix -> Int
-  columns m = snd (snd (bounds (elems m)))
-
-  rows :: Matrix -> Int
-  rows m = fst (snd (bounds (elems m)))
-
   identity4 :: Matrix
   identity4 =
     matrix4 1 0 0 0
@@ -226,11 +202,6 @@
       det = determinant m
       valueAt r c = cofactor r c m / det
       els = [ valueAt r c | r <- [0..rows m - 1], c <- [0..columns m - 1]]
-
-  at :: Matrix -> (Int, Int) -> Double
-  at m rc@(r, c)
-    | r >= rows m || c >= columns m = error (show rc ++ " failed bounds check on " ++ show m)
-    | otherwise = elems m ! rc
 
   reflect :: Quad -> Quad -> Quad
   reflect v normal =

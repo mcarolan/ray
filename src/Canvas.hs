@@ -4,6 +4,7 @@ module Canvas
   import Data.Array
   import Data.List
   import Colour
+  import Models hiding (elems)
   
   type Canvas = Array Int (Array Int Colour)
 

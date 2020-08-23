@@ -9,6 +9,7 @@ module CameraSpec where
   import World
   import Canvas
   import Colour
+  import Models
 
   spec :: Spec
   spec = do

@@ -11,6 +11,7 @@ import Colour
 import Ray
 import Transforms
 import Pattern
+import Models
 
 spec :: Spec
 spec = do

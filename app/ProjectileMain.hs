@@ -7,6 +7,7 @@ module ProjectileMain where
   import Colour
   import CanvasPPM
   import System.IO
+  import Models
   
   data Projectile = Projectile { position :: Quad, velocity :: Quad } deriving (Show)
   data Environment = Environment { gravity :: Quad, wind :: Quad }

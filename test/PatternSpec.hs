@@ -7,6 +7,7 @@ import Quad
 import Colour
 import Transforms
 import Ray
+import Models
 
 spec :: Spec
 spec = do

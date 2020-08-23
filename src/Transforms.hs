@@ -1,6 +1,6 @@
 module Transforms where
-
-  import Quad(Quad, Matrix, matrix4, normalize, minus, cross, x, y, z, mul)
+  import Models
+  import Quad(matrix4, normalize, minus, cross, mul)
 
   viewTransform :: Quad -> Quad -> Quad -> Matrix
   viewTransform from to up =

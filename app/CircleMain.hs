@@ -2,12 +2,12 @@ module CircleMain where
 
 import Quad
 import Canvas
-import Colour(red, black)
 import Ray
 import Data.Maybe
 import CanvasPPM
 import System.IO
 import Transforms
+import Models
 
 main :: IO ()
 main =

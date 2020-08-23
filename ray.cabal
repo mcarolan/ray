@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ce0655530d6c12ad491285f43517f41ab2ccb5b0d561b84b0dbf4f9aaf1b1d78
+-- hash: 3e79b65cfbea9acaf97e818c66807f38c3ba6d9127d06e368e6cd62e43c19033
 
 name:           ray
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Colour
       Lib
       Lighting
+      Models
       Pattern
       Quad
       Ray

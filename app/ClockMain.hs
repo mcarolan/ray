@@ -6,6 +6,7 @@ import System.IO
 import Colour
 import Transforms
 import Quad
+import Models
 
 draw :: Quad -> Colour -> Canvas -> Canvas
 draw q =

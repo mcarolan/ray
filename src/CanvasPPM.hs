@@ -3,6 +3,7 @@ module CanvasPPM where
   import Canvas
   import Colour
   import Data.Array
+  import Models
 
   canvasPPMHeader :: Canvas -> String
   canvasPPMHeader canvas =

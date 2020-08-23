@@ -6,6 +6,7 @@ import TestUtil
 import ApproxEqual
 import Ray
 import Transforms
+import Models
 
 spec :: Spec
 spec = do

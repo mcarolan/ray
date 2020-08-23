@@ -4,6 +4,7 @@ module MatrixSpec where
   import TestUtil
   import ApproxEqual
   import Quad
+  import Models
 
   spec :: Spec
   spec = do

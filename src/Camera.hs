@@ -1,21 +1,11 @@
 module Camera where
 
-import Quad(Matrix, inverse, mul, point, normalize, minus)
+import Quad(inverse, mul, point, normalize, minus)
 import Transforms(identityM)
 import Ray
 import Canvas
 import World
-
-data Camera = Camera {
-  hSize :: Int,
-  vSize :: Int,
-  fieldOfView :: Double,
-  cameraTransform :: Matrix,
-  inverseCameraTransform :: Matrix,
-  halfWidth :: Double,
-  halfHeight :: Double,
-  pixelSize :: Double
- } deriving (Show)
+import Models
 
 camera :: Int -> Int -> Double -> Camera
 camera hSize vSize fieldOfView =

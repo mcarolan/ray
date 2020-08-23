@@ -6,6 +6,7 @@ module World where
   import Transforms
   import Data.List(sortBy)
   import Pattern
+  import Models
 
   data World = World { lights :: [PointLight], shapes :: [(ShapeId, Shape)]} deriving (Show)
 

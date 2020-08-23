@@ -12,6 +12,7 @@ import World
 import Camera
 import Lighting
 import Pattern
+import Models
 
 main :: IO ()
 main =

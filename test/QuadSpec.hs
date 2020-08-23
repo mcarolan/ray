@@ -4,6 +4,7 @@ where
   import Test.Hspec
   import TestUtil
   import ApproxEqual
+  import Models
 
   spec :: Spec
   spec = do

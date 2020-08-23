@@ -1,6 +1,6 @@
 module Colour where
-  data Colour = Colour { r, g, b :: Double } deriving (Show)
-
+  import Models
+  
   addColour :: Colour -> Colour -> Colour
   addColour x y =
     Colour ((r x) + (r y)) ((g x) + (g y)) ((b x) + (b y))
@@ -16,9 +16,3 @@ module Colour where
   mulColour :: Colour -> Colour -> Colour
   mulColour x y =
     Colour ((r x) * (r y)) ((g x) * (g y)) ((b x) * (b y))
-
-  black = Colour 0 0 0
-  white = Colour 1 1 1
-  red = Colour 1 0 0
-  blue = Colour 0 0 1
-  green = Colour 0 1 0
