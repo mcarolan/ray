@@ -6,6 +6,7 @@ import Safe
 import Transforms
 import Models
 import Colour hiding (minus)
+import Data.List (delete)
 
 data Ray = Ray { origin, direction :: Quad }
 
@@ -27,6 +28,14 @@ plane = Plane identityM defaultMaterial
 
 sphere :: Shape
 sphere = Sphere identityM defaultMaterial
+
+glassSphere :: Shape
+glassSphere = sphere {
+  shapeMaterial = defaultMaterial {
+    materialTransparency = 1,
+    materialRefractiveIndex = 1.5
+  }
+}
 
 newtype ShapeId = ShapeId { shapeId :: Int } deriving (Show, Eq)
 
@@ -77,18 +86,50 @@ intersect ray shape =
   where
   localRay = ray `transform` inverse (shapeTransform (snd shape))
 
-data Computations = Computations { object :: (ShapeId, Shape), compsT :: Double, compsPoint :: Quad, compsEyeV :: Quad, compsNormalV :: Quad, inside :: Bool, overPoint :: Quad }
+data Computations = Computations {
+  object :: (ShapeId, Shape),
+  compsT :: Double,
+  compsPoint,
+  compsEyeV,
+  compsNormalV,
+  compsReflectV,
+  overPoint,
+  underPoint:: Quad,
+  inside :: Bool,
+  n1,
+  n2 :: Double
+ }
 
-prepareComputations :: Intersection -> Ray -> Computations
-prepareComputations int ray =
+computeN1N2 :: Intersection -> ((Double, Double), [(ShapeId, Shape)], Bool) -> Intersection -> ((Double, Double), [(ShapeId, Shape)], Bool)
+computeN1N2 hit s@((currentN1, currentN2), containers, finished) i
+  | finished = s
+  | i == hit && null containers = ((1, currentRefractiveIndex), [], True)
+  | i == hit && containerShapeIds == [currentShapeId] = ((currentRefractiveIndex, 1), [], True)
+  | i == hit = ((lastRefractiveIndex containers, lastRefractiveIndex nextContainers), nextContainers, True)
+  | otherwise = ((currentN1, currentN2), nextContainers, False)
+  where
+    containerShapeIds = map fst containers
+    currentShapeAndId@(currentShapeId, currentShape) = with i
+    currentRefractiveIndex = materialRefractiveIndex (shapeMaterial currentShape)
+    lastRefractiveIndex l = materialRefractiveIndex (shapeMaterial (snd (last l)))
+    nextContainers | currentShapeId `elem` containerShapeIds = filter (\(id, _) -> id /= currentShapeId) containers
+                   | otherwise = containers ++ [currentShapeAndId]
+
+
+prepareComputations :: Intersection -> Ray -> [Intersection] -> Computations
+prepareComputations int ray allIntersections =
   Computations {
     object = obj,
     compsT = t int,
     compsPoint = p,
     compsEyeV = eyeV,
     compsNormalV = computedNormalV,
+    compsReflectV = reflect (direction ray) computedNormalV,
+    overPoint = p `add` (computedNormalV `scalarmul` epsilon),
+    underPoint = p `minus` (computedNormalV `scalarmul` epsilon),
     inside = isInside,
-    overPoint = p `add` (computedNormalV `scalarmul` epsilon)
+    n1 = computedN1,
+    n2 = computedN2
   }
   where
     obj = with int
@@ -99,6 +140,7 @@ prepareComputations int ray =
     isInside = normalDotEye < 0
     computedNormalV | isInside = neg normalV
                     | otherwise = normalV
+    ((computedN1, computedN2), _, _) = foldl (computeN1N2 int) ((1, 1), [], False) allIntersections
 
 hit :: [Intersection] -> Maybe Intersection
 hit intersections = 

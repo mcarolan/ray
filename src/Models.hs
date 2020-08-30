@@ -6,11 +6,14 @@ module Models where
   materialAmbient,
   materialDiffuse,
   materialSpecular,
-  materialShininess :: Double,
+  materialShininess,
+  materialReflectivity,
+  materialTransparency,
+  materialRefractiveIndex :: Double,
   materialPattern :: Pattern } deriving (Show)
 
   defaultMaterial :: Material
-  defaultMaterial = Material 0.1 0.9 0.9 200.0 (Constant white)
+  defaultMaterial = Material 0.1 0.9 0.9 200.0 0 0 1 (Constant white)
 
   data PointLight = PointLight { lightIntensity :: Colour, lightPosition :: Quad } deriving (Show)
 

@@ -17,7 +17,7 @@ import Models
 main :: IO ()
 main =
   do
-    _ <- writeFile "patterns.ppm" ppm
+    _ <- writeFile "patterns-reflect-refract.ppm" ppm
     return ()
   where
     light = PointLight white (point (-10) 10 (-10))
@@ -27,7 +27,8 @@ main =
       shapeMaterial = defaultMaterial {
         materialPattern = (stripePattern white black) {
           patternTransform = rotateZ (pi/4) `mul` scaling 0.2 0.2 0.2
-        }
+        },
+        materialReflectivity = 0.8
       },
       shapeTransform = translation 0 1.5 0
     }

@@ -105,7 +105,7 @@ spec = do
       let shapeId = ShapeId 1
       let intersection = Intersection (shapeId, sphere) 4
 
-      let comps = prepareComputations intersection r
+      let comps = prepareComputations intersection r [intersection]
 
       fst (object comps) `shouldBe` shapeId
       snd (object comps) `shouldApproxBe` sphere
@@ -120,7 +120,7 @@ spec = do
       let shapeId = ShapeId 1
       let intersection = Intersection (shapeId, sphere) 1
 
-      let comps = prepareComputations intersection r
+      let comps = prepareComputations intersection r [intersection]
 
       compsPoint comps `shouldApproxBe` point 0 0 1
       compsEyeV comps `shouldApproxBe` vector 0 0 (-1)
@@ -134,8 +134,26 @@ spec = do
     }
 
     let i = Intersection (ShapeId 0, s) 5
-    let comps = prepareComputations i r
+    let comps = prepareComputations i r [i]
 
     z (overPoint comps) `shouldSatisfy` \n -> n < ((-epsilon) / 2)
     z (compsPoint comps) `shouldSatisfy` \n -> n > z (overPoint comps)
+
+  it "precomputes the reflection vector" $ do
+    let shape = plane
+    let r = Ray (point 0 1 (-1)) (vector 0 (-(sqrt 2 / 2)) (sqrt 2 / 2))
+    let intersection = Intersection (ShapeId 1, shape) (sqrt 2)
+    let comps = prepareComputations intersection r [intersection]
+    compsReflectV comps `shouldApproxBe` vector 0 (sqrt 2 / 2) (sqrt 2 / 2)
+
+  it "computes the underpoint" $ do
+    let shape = glassSphere {
+      shapeTransform = translation 0 0 1
+    }
+    let r = Ray (point 0 0 (-5)) (vector 0 0 1)
+    let i = Intersection (ShapeId 1, shape) 5
+    let comps = prepareComputations i r [i]
+
+    z (underPoint comps) `shouldSatisfy` \n -> n > (epsilon / 2)
+    z (compsPoint comps) `shouldSatisfy` \n -> n < z (underPoint comps)
 

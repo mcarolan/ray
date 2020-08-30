@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3e79b65cfbea9acaf97e818c66807f38c3ba6d9127d06e368e6cd62e43c19033
+-- hash: 3cce87cd1ece49b0f757fead566e44bd4dcb9a9163ca2160fc1dbbc63f9d737f
 
 name:           ray
 version:        0.1.0.0
@@ -55,6 +55,7 @@ executable ray-exe
   other-modules:
       CircleMain
       ClockMain
+      PatternMain
       PlaneMain
       ProjectileMain
       SceneMain
@@ -93,5 +94,6 @@ test-suite ray-test
   build-depends:
       base >=4.7 && <5
     , hspec
+    , hspec-tables
     , ray
   default-language: Haskell2010
